@@ -24,8 +24,8 @@
           <el-dropdown-item>
             选项二
           </el-dropdown-item>
-          <el-dropdown-item>
-            选项三
+          <el-dropdown-item @click.native="handleLogout">
+            退出登录
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -37,6 +37,7 @@
 <script>
 
 import { mapState } from 'vuex';
+import { logout } from '@/api';
 export default {
   name: 'HelloWorld',
   props: {
@@ -59,7 +60,7 @@ export default {
       if (item.path === this.$route.path) {
         return 'current_bread';
       } else {
-        if(this.$route.path === '/home'& item.path === '/'){
+        if (this.$route.path === '/home' & item.path === '/') {
           return 'current_bread';
         }
         return '';
@@ -74,12 +75,31 @@ export default {
       if (to.path === '/home' || to.path === '/') {
         console.log(to, '/home')
         const current_bread = document.getElementById('breadcrumb-item-' + to.path)
-        
+
       } else {
         console.log(to, '其他')
         const current_bread = document.getElementById('breadcrumb-item-' + to.path)
         console.log(current_bread, 'current_bread')
       }
+    },
+    handleLogout() {
+      let userId = this.$store.state.userInfo.userId
+     
+      if (userId > 0) {
+        logout().then((data) => {
+          console.log("退出登录",data)
+          this.$store.commit('removeUser')
+          this.$store.state.userInfo.userId=0
+          this.$router.push('/login')
+        })
+      }else{
+        
+        this.$store.commit('removeUser')
+        this.$router.push('/login')
+      }
+
+
+
     }
   },
   // computed 是一个对象，用于定义计算属性
@@ -124,7 +144,7 @@ export default {
     display: flex;
     align-items: center;
 
-    
+
 
     // 用于修改具有特定类名的元素的样式，这些类名是在一个包含 .el-breadcrumb__item 的深度（/deep/）选择器内的
     /deep/.el-breadcrumb__item {
@@ -146,8 +166,8 @@ export default {
       }
     }
 
-    /deep/.current_bread{
-      .el-breadcrumb__inner{
+    /deep/.current_bread {
+      .el-breadcrumb__inner {
         color: aquamarine;
         background-color: #e90c0c;
       }

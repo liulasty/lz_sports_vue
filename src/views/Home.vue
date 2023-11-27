@@ -5,20 +5,20 @@
                 <div class="userImg">
                     <img src="../assets/logo.png" alt="">
                     <div class="user-info">
-                        <p class="username">Admin</p>
-                        <p class="access">超级管理员</p>
+                        <p class="username">{{ userInfo.username }}</p>
+                        <p class="access">{{ userInfo.type }}</p>
                     </div>
                 </div>
                 <div class="login-info">
-                    <p>qweqweqwq：<span>2022-09-17</span></p>
-                    <p>qweqweqwe：<span>武汉</span></p>
+                    <p>时间：<span>2023年11月10日2时10分</span></p>
+                    <p>地点：<span>陕西理工大学</span></p>
                 </div>
             </el-card>
             <el-card style="margin-top: 18PX;height: 310PX;">
                 <el-table :data="tableData" style="width: 100%" height="250">
-                    <el-table-column fixed prop="date" label="日期" width="150">
+                    <el-table-column fixed prop="date" label="活动时间" width="190">
                     </el-table-column>
-                    <el-table-column v-for="(val, key) in tableLabel" :key="key" :prop="key" :label="val" width="120" />
+                    <el-table-column v-for="(val, key) in tableLabel" :key="key" :prop="key" :label="val" width="100" />
                 </el-table>
             </el-card>
         </el-col>
@@ -69,54 +69,10 @@ export default {
         return {
             tableData: [{
                 date: '2016-05-03',
-                name: '王小虎',
-                province: '上海',
-                city: '普陀区',
-                address: '上海市普陀区金沙江路 1518 弄',
-                zip: 200333
-            }, {
-                date: '2016-05-02',
-                name: '王小虎',
-                province: '上海',
-                city: '普陀区',
-                address: '上海市普陀区金沙江路 1518 弄',
-                zip: 200333
-            }, {
-                date: '2016-05-04',
-                name: '王小虎',
-                province: '上海',
-                city: '普陀区',
-                address: '上海市普陀区金沙江路 1518 弄',
-                zip: 200333
-            }, {
-                date: '2016-05-01',
-                name: '王小虎',
-                province: '上海',
-                city: '普陀区',
-                address: '上海市普陀区金沙江路 1518 弄',
-                zip: 200333
-            }, {
-                date: '2016-05-08',
-                name: '王小虎',
-                province: '上海',
-                city: '普陀区',
-                address: '上海市普陀区金沙江路 1518 弄',
-                zip: 200333
-            }, {
-                date: '2016-05-06',
-                name: '王小虎',
-                province: '上海',
-                city: '普陀区',
-                address: '上海市普陀区金沙江路 1518 弄',
-                zip: 200333
-            }, {
-                date: '2016-05-07',
-                name: '王小虎',
-                province: '上海',
-                city: '普陀区',
-                address: '上海市普陀区金沙江路 1518 弄',
-                zip: 200333
-            }],
+                name: '活动名称',
+                type: '参赛资格',
+                fee: '菲佣'
+            },],
             countData: [
                 {
                     name: "今日支付订单",
@@ -156,19 +112,31 @@ export default {
                 },
             ],
             tableLabel: {
-                name: '课程',
-                province: '省份',
-                city: '市区',
-                address: '地址',
-                zip: '邮编',
+                name: '活动名称',
+                type: '参赛资格',
+                fee: '费用'
             },
+            userInfo: {
+                username: this.$store.state.userInfo.username,
+                img: this.$store.state.userInfo.img,
+                type: this.$store.state.userInfo.type,
+            }
         }
     },
     mounted() {
+        this.userInfo.username = this.$store.state.userInfo.username;
+        this.userInfo.img = this.$store.state.userInfo.img;
+        this.userInfo.type = this.$store.state.userInfo.type;
+        
+
         getData().then((data) => {
-            console.log(data.data.data)
             const dataAll = data.data.data
             this.tableData = dataAll.tableData
+            console.log("tableData", this.tableData)
+
+            this.tableData.forEach(item => {
+                item.date = this.DateToString(item.date)
+            })
             const echarts1 = echarts.init(this.$refs.echarts1);
             // 指定图表的配置项和数据
             var option = {
@@ -219,35 +187,12 @@ export default {
                     //     type: 'line',
                     //     stack: 'Total',
                     //     data: [120, 132, 101, 134, 90, 230, 210]
-                    // },
-                    // {
-                    //     name: 'Union Ads',
-                    //     type: 'line',
-                    //     stack: 'Total',
-                    //     data: [220, 182, 191, 234, 290, 330, 310]
-                    // },
-                    // {
-                    //     name: 'Video Ads',
-                    //     type: 'line',
-                    //     stack: 'Total',
-                    //     data: [150, 232, 201, 154, 190, 330, 410]
-                    // },
-                    // {
-                    //     name: 'Direct',
-                    //     type: 'line',
-                    //     stack: 'Total',
-                    //     data: [320, 332, 301, 334, 390, 330, 320]
-                    // },
-                    // {
-                    //     name: 'Search Engine',
-                    //     type: 'line',
-                    //     stack: 'Total',
-                    //     data: [820, 932, 901, 934, 1290, 1330, 1320]
                     // }
                 ]
             };
 
-            const { orderData, userData ,videoData} = dataAll
+            const { orderData, userData, videoData } = dataAll
+            console.log("orderData", dataAll.orderData)
             const xAxis = Object.keys(orderData.data[1])
 
             option.xAxis = {
@@ -310,7 +255,7 @@ export default {
                 xAxis: [
                     {
                         type: 'category',
-                        data: userData.map(item => item.date)
+                        // data: userData.map(item => item.date)
                     }
                 ],
                 yAxis: [
@@ -329,37 +274,16 @@ export default {
                         }
                     }
                 ],
-                // dataZoom: [
-                //     {
-                //         show: true,
-                //         start: 94,
-                //         end: 100
-                //     },
-                //     {
-                //         type: 'inside',
-                //         start: 94,
-                //         end: 100
-                //     },
-                //     {
-                //         show: true,
-                //         yAxisIndex: 0,
-                //         filterMode: 'empty',
-                //         width: 30,
-                //         height: '80%',
-                //         showDataShadow: false,
-                //         left: '93%'
-                //     }
-                // ],
                 series: [
                     {
                         name: '新增用户',
                         type: 'bar',
-                        data: userData.map(item => item.new)
+                        // data: userData.map(item => item.new)
                     },
                     {
                         name: '活跃用户',
                         type: 'bar',
-                        data: userData.map(item => item.active)
+                        // data: userData.map(item => item.active)
                     }
                 ]
             };
@@ -374,7 +298,7 @@ export default {
                     text: 'Referer of a Website',
                     subtext: '副标题',
                     left: 'center',
-                    textStyle:{
+                    textStyle: {
                         fontSize: 14,
                         fontWeight: 'bold',
                     }
@@ -414,6 +338,25 @@ export default {
 
             echarts3.setOption(option);
         })
+
+    },
+    methods: {
+        //时间格式转换
+        DateToString() {
+            const dateString = "2000-11-09T18:10:00.000+00:00";
+            const date = new Date(dateString);
+
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1; // 月份是从0开始计数的，所以需要加1
+            const day = date.getDate();
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+
+            // 构建格式化后的字符串
+            const formattedDate = `${year}年${month}月${day}日${hours}时${minutes}分`;
+
+            return formattedDate
+        }
 
     }
 }

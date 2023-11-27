@@ -1,24 +1,45 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-import User from '../views/User.vue'
+import Event from '../views/Event.vue'
 import Main from '../views/Main.vue'
 import pageOne from '../views/PageOne.vue'
 import pageTwo from '../views/PageTwo.vue'
+import Login from '../views/login.vue'
+import Sports from '../views/shouye.vue'
+import Athlete from '../views/Athlete.vue'
+import EventItem from '../views/EventItem.vue'
+import AthleteApplication from '../views/AthleteApplication.vue'
+import User from '../views/User.vue'
+
 Vue.use(VueRouter)
 const routes = [
     // 主路由
     {
-        path: '/',
+        path: '/login',
+        name: 'login',
+        component: Login
+    },
+    {
+        path: '/main',
         component: Main,
         redirect: '/home',
         children: [
-            { path: 'home',name:'home',component: Home },
-            { path: 'user',name:'user', component: User },
-            { path: 'page1',name:'page1',component: pageOne},
-            { path: 'page2',name:'page2',component: pageTwo},
+            { path: '/home',name:'home',component: Home },
+            { path: '/event',name:'event', component: Event },
+            { path: '/user',name:'user', component: User },
+            { path: '/athlete',name:'athlete', component: Athlete },
+            { path: '/eventItem',name:'eventItem', component: EventItem },
+            { path: '/athleteApplication',name:'athleteApplication', component: AthleteApplication },
+            { path: '/page1',name:'page1',component: pageOne},
+            { path: '/page2',name:'page2',component: pageTwo},
         ]
-    }
+    },
+    {
+        path: '/sports',
+        name: 'sports',
+        component: Sports,
+    },
 
 
 ]
@@ -40,6 +61,7 @@ VueRouter.prototype.push = function push(location) {
 const router = new VueRouter({
     routes
 })
+
 
 export default router
 

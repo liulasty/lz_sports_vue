@@ -59,8 +59,36 @@ export default {
                     path: '/user',
                     name: 'user',
                     label: '用户管理',
+                    icon: 's-home',
+                    url: 'user/user'
+                },
+                {
+                    path: '/event',
+                    name: 'event',
+                    label: '活动管理',
                     icon: 'user',
-                    url: 'UserMange/UserMange'
+                    url: 'eventMange/eventMange'
+                },
+                {
+                    path: '/athlete',
+                    name:'athlete',
+                    label: '运动员管理',
+                    icon: 'user',
+                    url: 'athleteMange/athleteMange'
+                },
+                {
+                    path: '/eventItem',
+                    name:'eventItem',
+                    label: '项目管理',
+                    icon: 'user',
+                    url: 'eventItemMange/eventItemMange'
+                },
+                {
+                    path: '/athleteApplication',
+                    name:'athleteApplication',
+                    label: '运动员申请',
+                    icon: 'user',
+                    url: 'athleteApplication/athleteApplication'
                 },
                 {
                     label: '其他',

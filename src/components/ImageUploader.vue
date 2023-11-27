@@ -3,7 +3,7 @@
         <!-- 文件选择输入框 -->
         <input type="file" ref="fileInput" @change="handleFileChange_new" multiple>
 
-        <button @click="addImage">添加图片</button>
+        <!-- <button @click="addImage">添加图片</button> -->
         <div class="image-container">
             <div v-for="(image, index) in imageUrls" :key="index" class="image-item">
                 <img :src="image.url" alt="上传的图片" />
@@ -12,14 +12,17 @@
         </div>
 
         <!-- 触发上传按钮 -->
-        <button @click="uploadImages">上传图片</button>
+        <!-- <button @click="uploadImages">上传图片</button> -->
 
     </div>
 </template>
   
 <script>
+import { updateImg } from '@/api'
+import { deleteImg } from '@/api'
+
 export default {
-    props: ['childData'],
+
     data() {
         return {
             //图片的集合
@@ -28,11 +31,11 @@ export default {
             deleteImagesUrls: [],
             //原有的图片
             OriginalPhotos: [],
+            data: '初始数据'
         };
     },
     mounted() {
-        console.log('imageUrls[0]',this.childData.imageUrls[0])
-        this.imageUrls.push(this.childData.imageUrls[0])
+
     },
     methods: {
         handleFileChange_new() {
@@ -43,38 +46,23 @@ export default {
             for (let i = 0; i < selectedFiles.length; i++) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    this.imageUrls.push({ url: e.target.result, type: 'new' });
+                    this.imageUrls.push({ url: e.target.result, type: 'new', ossUrl: 'null' });
                 };
                 reader.readAsDataURL(selectedFiles[i]);
             }
         },
-        addImage() {
+        addImage(url) {
             // 在这里可以通过某个方法获取新的图片URL并添加到集合中
-            const newImageUrl = "http://image-upload-and-management.oss-cn-beijing.aliyuncs.com/wallhaven-3zvypv.jpg";
-            // 举例一个新URL
-            this.OriginalPhotos.push(
-                {
-                    url: newImageUrl,
-                    type: 'old',
-                    oss_url: newImageUrl.substring(newImageUrl.lastIndexOf('/') + 1)
+            const newImageUrl = "http://image-upload-and-management.oss-cn-beijing.aliyuncs.com/" + url;
+            this.loadImageAsBase64(newImageUrl)
+                .then((base64String) => {
+                    // console.log(base64String);
+                    const imageUrl = "data:image/jpeg;base64," + base64String;
+                    this.imageUrls.push({ url: imageUrl, type: 'old', ossUrl: newImageUrl });
+                })
+                .catch((error) => {
+                    console.error(error);
                 });
-            console.log('OriginalPhotos', this.OriginalPhotos)
-            for (let index = 0; index < this.OriginalPhotos.length; index++) {
-                const photos = this.OriginalPhotos[index];
-                this.loadImageAsBase64(photos.url)
-                    .then((base64String) => {
-                        // console.log(base64String);
-                        const imageUrl = "data:image/jpeg;base64," + base64String;
-                        this.imageUrls.push({ url: imageUrl, type: 'old', oss_url: photos.oss_url });
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                    });
-
-            }
-            this.OriginalPhotos = [];
-
-
         },
         removeImage(index) {
             if (this.imageUrls[index].type == 'old') {
@@ -82,65 +70,50 @@ export default {
             }
             this.imageUrls.splice(index, 1);
         },
-        async uploadImages() {
+        uploadImages() {
             this.deleteImage();
             for (let i = 0; i < this.imageUrls.length; i++) {
                 const image = this.imageUrls[i];
-                if (image.type == 'old') {
+
+                if (image.type === 'old') {
                     continue;
                 }
 
                 const formData = new FormData();
                 formData.append('file', this.dataURLtoFile(image.url, `image${i}.png`));
-                try {
-                    const response = await fetch('http://localhost:80/upload', {
-                        method: 'POST',
-                        body: formData,
-                    });
 
-                    if (response.ok) {
-                        // 上传成功，可以在这里处理成功的逻辑
-                        console.log('图片上传成功');
-                        const responseBody = await response.text(); // 或者使用 response.json() 或 response.blob()
-                        console.log('响应主体内容:', responseBody);
-                        this.imageUrls[i].oss_url = responseBody;
-                    } else {
-                        // 上传失败，可以在这里处理失败的逻辑
-                        console.log(response)
-                        console.log('图片上传失败');
-                    }
-                } catch (error) {
-                    console.error('上传时出错', error);
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'http://localhost:80/sports/img/upload', false); // 设置请求为同步
+                xhr.send(formData);
+
+                if (xhr.status === 200) {
+                    console.log('文件上传成功！',xhr.response);
+                    image.ossUrl = xhr.responseText
+                } else {
+                    console.error('文件上传失败！错误码：' + xhr.status);
                 }
+
+                this.imageUrls[i].ossUrl = image.ossUrl
+                console.log("修改的阿里云图片", this.imageUrls[i])
             }
 
-            this.sendImgCollection();
+            // this.clearImgSet()
         },
-        async deleteImage() {
+        deleteImage() {
             for (let i = 0; i < this.deleteImagesUrls.length; i++) {
                 const image = this.deleteImagesUrls[i];
                 const formData = new FormData();
-                formData.append('deleteImagesUrl', image.oss_url);
-                try {
-                    const response = await fetch('http://localhost:80/delete', {
-                        method: 'delete',
-                        body: formData,
+                formData.append('deleteImagesUrl', image.ossUrl);
+                deleteImg(formData).then((response) => {
+                    // 处理成功响应，这里可以根据需要自定义逻辑，例如将图片URL添加到图片URL数组中
+                    console.log("上传图片的响应", response.data)
+                    // this.uploadedImages.push(response.data);
+                })
+                    .catch((error) => {
+                        // 处理错误响应，这里可以根据需要自定义逻辑，例如显示错误信息给用户
+                        console.error(error);
                     });
-
-                    if (response.ok) {
-                        // 上传成功，可以在这里处理成功的逻辑
-                        console.log('图片删除成功');
-                        const responseBody = await response.text(); // 或者使用 response.json() 或 response.blob()
-                        console.log('响应主体内容:', responseBody);
-                        this.deleteImagesUrls = [];
-                    } else {
-                        // 上传失败，可以在这里处理失败的逻辑
-                        console.log(response)
-                        console.log('图片删除失败');
-                    }
-                } catch (error) {
-                    console.error('图片删除时出错', error);
-                }
             }
 
         },
@@ -203,18 +176,19 @@ export default {
                 });
         },
         //测试组件间通信
-        testImg(){
+        testImg() {
             console.log('testIMg')
-        }, 
-        //清除图片的集合
-        clearImgSet(){
-             //图片的集合
-            this.imageUrls= [],
-            //需要删除的图片
-            this.deleteImagesUrls= [],
-            //原有的图片
-            this.OriginalPhotos=[]
         },
+        //清除图片的集合
+        clearImgSet() {
+            console.log("清理图片集合")
+            //图片的集合
+            this.imageUrls = [],
+                //需要删除的图片
+                this.deleteImagesUrls = [],
+                //原有的图片
+                this.OriginalPhotos = []
+        }
 
     },
 };
