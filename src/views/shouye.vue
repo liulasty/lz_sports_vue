@@ -24,7 +24,7 @@ export default {
     },
     methods: {
         ToLogin() {
-            console.log("删除")
+            
             this.$router.push('/login')
         }
     }

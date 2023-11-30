@@ -32,6 +32,7 @@
 .el-menu {
     height: 100vh;
     border: 0px;
+
     h3 {
         color: #fff;
         text-align: center;
@@ -44,12 +45,19 @@
   
 <script>
 export default {
+    watch: {
+        '$route'(to, from) {
+            // 在路由变化时触发，你可以在这里更新面包屑的样式
+            // 比如根据当前路由信息 to 来设置面包屑样式
+            console.log("to ",to)
+        }
+    },
     data() {
         return {
-            
+
             menuData: [
                 {
-                    path: '/',
+                    path: '/home',
                     name: 'home',
                     label: '首页',
                     icon: 's-home',
@@ -71,21 +79,21 @@ export default {
                 },
                 {
                     path: '/athlete',
-                    name:'athlete',
+                    name: 'athlete',
                     label: '运动员管理',
                     icon: 'user',
                     url: 'athleteMange/athleteMange'
                 },
                 {
                     path: '/eventItem',
-                    name:'eventItem',
+                    name: 'eventItem',
                     label: '项目管理',
                     icon: 'user',
                     url: 'eventItemMange/eventItemMange'
                 },
                 {
                     path: '/athleteApplication',
-                    name:'athleteApplication',
+                    name: 'athleteApplication',
                     label: '运动员申请',
                     icon: 'user',
                     url: 'athleteApplication/athleteApplication'
@@ -123,18 +131,18 @@ export default {
             console.log(key, keyPath);
         },
         clickMenu(item) {
-            console.log(item)
+            console.log("点击菜单", item)
 
             if (this.$route.path !== item.path && !(this.$route.path == '/home' && (item.path === '/'))) {
                 this.$router.push(item.path)
-            } else{
-                this.refreshPage()
+            } else {
+                // this.refreshPage()
             }
-            this.$store.commit('selectMenu',item)
+            this.$store.commit('selectMenu', item)
 
         },
         refreshPage() {
-            // this.$router.go(0);
+            this.$router.go(0);
         },
     },
     computed: {
@@ -145,7 +153,7 @@ export default {
         hasChildren() {
             return this.menuData.filter(item => item.children)
         },
-        isCollapse(){
+        isCollapse() {
             return this.$store.state.tab.isCollapse
         }
 
@@ -153,7 +161,7 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-    .el-menu{
-        border-right: none;
-    }
+.el-menu {
+    border-right: none;
+}
 </style>

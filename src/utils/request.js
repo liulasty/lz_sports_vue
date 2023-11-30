@@ -1,5 +1,4 @@
 import axios from "axios";
-import store from '../store'
 
 const http = axios.create({
   baseURL: 'http://localhost:80/sports',
@@ -11,8 +10,8 @@ const http = axios.create({
 // 添加请求拦截器
 http.interceptors.request.use(function (config) {
   // 在发送请求之前做些什么
-  console.log("在发送请求之前", config)
-  const token = store.state.userInfo.token;
+  // 获取JWT令牌
+  const token = localStorage.getItem('jwtToken');
   console.log("token", token)
   // 在请求头中添加自定义内容
   config.headers['jwt'] = token;

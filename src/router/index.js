@@ -23,8 +23,13 @@ const routes = [
     {
         path: '/main',
         component: Main,
-        redirect: '/home',
         children: [
+            {
+                path: '',
+                components: {
+                  default: Home
+                }
+              },
             { path: '/home',name:'home',component: Home },
             { path: '/event',name:'event', component: Event },
             { path: '/user',name:'user', component: User },
@@ -36,7 +41,7 @@ const routes = [
         ]
     },
     {
-        path: '/sports',
+        path: '/',
         name: 'sports',
         component: Sports,
     },

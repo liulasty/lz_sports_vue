@@ -79,23 +79,28 @@ export default {
       } else {
         console.log(to, '其他')
         const current_bread = document.getElementById('breadcrumb-item-' + to.path)
-        console.log(current_bread, 'current_bread')
+
       }
+      this.$store.commit('selectMenu', to)
     },
     handleLogout() {
       let userId = this.$store.state.userInfo.userId
-     
+      // 删除JWT令牌
+      localStorage.removeItem('jwtToken');
+      localStorage.removeItem('sportsUser');
       if (userId > 0) {
         logout().then((data) => {
-          console.log("退出登录",data)
-          this.$store.commit('removeUser')
-          this.$store.state.userInfo.userId=0
-          this.$router.push('/login')
+          console.log("退出登录", data)
+
+
+          this.$store.state.userInfo.userId = 0
+          window.location.reload();
+
         })
-      }else{
-        
-        this.$store.commit('removeUser')
-        this.$router.push('/login')
+      } else {
+
+        window.location.reload();
+
       }
 
 

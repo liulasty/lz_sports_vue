@@ -19,7 +19,7 @@
                     <input type="text" placeholder="邮箱" class="input" />
                     <input type="password" placeholder="密码" class="input" />
                     <a href="#" class="link">忘记密码？</a>
-                    <button class="btn" @click="loginCheck">登陆</button>
+                    <button class="btn" @click.prevent="loginCheck">登陆</button>
                 </form>
             </div>
 
@@ -92,19 +92,18 @@ export default {
                 return;
             } else {
                 if (this.validateStr(password, "p") == "password") {
-                    console.log("密码", this.validateStr(password, "p"))
                     this.loginInfo.username = username
                     this.loginInfo.password = password
-
 
                     login(this.loginInfo).then((data) => {
                         console.log("登录后的参数", data.data);
                         if (data.data.code === 1) {
-                            this.$store.commit('setToken', data.data.data.token)
-                            console.log("设置jwt", this.$store.state.userInfo.token)
-                            this.$store.commit('loginUser', data.data.data)
-                            console.log("账户参数", this.$store.state.userInfo)
+                            // 存储JWT令牌
+                            localStorage.setItem('jwtToken', data.data.data.token);
+                            localStorage.setItem('sportsUser',  JSON.stringify(data.data.data));
 
+                            this.$router.push('/main')
+                            
                             this.$message({
                                 showClose: true,
                                 message: '恭喜你，登录成功成功',
@@ -117,12 +116,7 @@ export default {
                                 type: 'error'
                             });
                         }
-
-
-                        this.$router.push('/main')
                     });
-
-
                 } else {
                     this.$message({
                         showClose: true,
@@ -130,15 +124,9 @@ export default {
                         type: 'error'
                     });
 
-                    return;
+                    
                 }
-
             }
-
-
-
-
-
         },
 
         registerCheck() {

@@ -3,7 +3,7 @@ export default{
         isCollapse:false, //控制菜单的是否展开
         tabsList:[
             {
-                path: '/',
+                path: '/home',
                 name: 'home',
                 label: '首页',
                 icon: 's-home',

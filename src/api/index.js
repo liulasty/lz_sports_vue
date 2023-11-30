@@ -56,11 +56,42 @@ export const logout = () => {
 }
 
 export const register = (userInfo) => {
-    console.log("注册参数",)
+    console.log("注册参数",userInfo)
     return http.post('/user/register', userInfo)
 }
 
+export const deleteUser = (id) =>{
+    console.log("删除",id)
+    return http.delete('/user/'+id)
+}
 
+export const userList = (listSelectCondition) => {
+    console.log("查询参数", listSelectCondition);
+    return http.get('/user/page', {
+        params: listSelectCondition,
+    })
+}
+
+export const athleteAdd = (athlete) =>{
+    console.log("athleteAdd参数", athlete);
+    return http.post('/athlete',athlete)
+}
+
+export const examineSports = (id) =>{
+    console.log("运动员审核通过", id);
+    return http.get('/user/athlete/'+id)
+}
+
+export const projectList = (listSelectCondition) => {
+    console.log("查询参数", listSelectCondition);
+    return http.get('/project/page', {
+        params: listSelectCondition,
+    })
+}
+
+export const eventTypes = () =>{
+    return http.get("/event/eventType")
+}
 // export const loadImageAsBase64 =(url) =>{
 //     return aliyun.get(url)
 // }

@@ -18,15 +18,29 @@ Vue.use(ElementUI);
 // 添加全局前置导航守卫
 router.beforeEach((to, from, next) => {
 
-  const token = store.state.userInfo.token
+  // 获取JWT令牌
+  const token = localStorage.getItem('jwtToken');
+  const sportsUser = localStorage.getItem('sportsUser')
+  if(sportsUser){
+    const User = JSON.parse(sportsUser)
+    store.state.userInfo.username=User.userName;
+    store.state.userInfo.userId=User.id;
+    store.state.userInfo.img=User.img;
+    store.state.userInfo.type=User.type
 
-  if (!token && to.path !== '/login' && to.path !== '/register') {//token不存在
-    next( '/login' )
+    
+  }
+  if (!token && to.path !== '/login' && to.path !== '/register' && to.path !== '/' ) {//token不存在
+    next('/login')
   } else if (token && to.name === 'login') {//token存在
+    
+    if(from.name==  'home'){
+      next()
+    }
     next({ name: 'home' })
   } else {
     next();
-    console.log("即将要进入的目标", to)
+    
   }
 })
 

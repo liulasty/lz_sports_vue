@@ -9,9 +9,9 @@
 
             <!-- 查询组件 -->
             <div class="top_right">
-                <el-input class="eventName" placeholder="请输入内容" size="small" v-model="eventList.name" clearable>
+                <el-input class="eventName" placeholder="请输入活动关键词" size="small" v-model="eventList.name" clearable>
                 </el-input>
-                <el-select v-model="eventList.type" size="small" placeholder="请选择" clearable>
+                <el-select v-model="eventList.type" size="small" placeholder="请选择活动类型" clearable>
                     <el-option v-for="item in Eligibility" :key="item.value" :label="item.label" :value="item.value">
                     </el-option>
                 </el-select>
@@ -409,7 +409,7 @@ export default {
             this.$confirm('此操作将永久删除, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
-                type: 'warning'
+                type: 'success'
             }).then(() => {
                 deleteEvent(event.eventId).then((data) => {
                     console.log("删除结果",data);
