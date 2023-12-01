@@ -18,7 +18,6 @@
 </template>
   
 <script>
-import { updateImg } from '@/api'
 import { deleteImg } from '@/api'
 
 export default {
@@ -88,7 +87,7 @@ export default {
                 xhr.send(formData);
 
                 if (xhr.status === 200) {
-                    console.log('文件上传成功！',xhr.response);
+                    console.log('文件上传成功！', xhr.response);
                     image.ossUrl = xhr.responseText
                 } else {
                     console.error('文件上传失败！错误码：' + xhr.status);
@@ -187,7 +186,8 @@ export default {
                 //需要删除的图片
                 this.deleteImagesUrls = [],
                 //原有的图片
-                this.OriginalPhotos = []
+                this.OriginalPhotos = [],
+                this.$refs.fileInput.value=null;
         }
 
     },

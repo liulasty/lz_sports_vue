@@ -90,8 +90,14 @@ export const projectList = (listSelectCondition) => {
 }
 
 export const eventTypes = () =>{
+    console.log("活动类型")
     return http.get("/event/eventType")
 }
+
+export const addProject = (projectList) => {
+    return http.post('/project', projectList)
+}
+
 // export const loadImageAsBase64 =(url) =>{
 //     return aliyun.get(url)
 // }

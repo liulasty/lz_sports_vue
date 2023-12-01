@@ -3,14 +3,14 @@
         <div class="project_top">
             <div v-if="applyPlayer()" class="top_left">
                 <el-button type="primary" size="small" icon="el-icon-circle-plus-outline"
-                    @click="dialogFormVisible = true">添加活动</el-button>
+                    @click="dialogFormVisible = true">添加项目</el-button>
             </div>
 
             <!-- 查询组件 -->
             <div class="top_right">
                 <el-input class="projectName" placeholder="请输入活动关键词" size="small" v-model="projectConfig.name" clearable>
                 </el-input>
-                <el-select v-model="projectConfig.type" size="small" placeholder="请选择活动类型" clearable>
+                <el-select v-model="projectConfig.event" size="small" placeholder="请选择活动类型" clearable>
                     <el-option v-for="item in Eligibility" :key="item.value" :label="item.label" :value="item.value">
                     </el-option>
                 </el-select>
@@ -21,6 +21,7 @@
 
 
         </div>
+        <!-- 表格 -->
         <div class="projectTable">
             <el-table :data="tableData" border style="width: 100%">
                 <el-table-column fixed prop="start" label="开始日期" width="350">
@@ -31,17 +32,16 @@
                 </el-table-column>
                 <el-table-column prop="state" label="报名方式" width="220">
                 </el-table-column>
-
                 <el-table-column label="操作" width="265">
                     <template slot-scope="scope">
-
                         <el-button v-if="applyPlayer()" @click="deleteProjectById(scope.row)" type="text"
                             size="small">删除</el-button>
-                        <el-button v-else @click="deleteProjectById(scope.row)" type="text" size="small">参加</el-button>
+                        <el-button v-else @click="attendProjectById(scope.row)" type="text" size="small">参加</el-button>
                     </template>
                 </el-table-column>
             </el-table>
         </div>
+        <!-- 分页按钮 -->
         <div class="block">
             <!-- <span class="demonstration">完整功能</span> -->
             <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
@@ -52,37 +52,40 @@
 
         <!-- 添加Form -->
         <el-dialog title="添加项目" :visible.sync="dialogFormVisible" :before-close="handleClose">
-            <el-form :model="projectForm"   ref="ruleForm" label-width="100px"
-                class="demo-ruleForm">
-                <el-form-item label="活动名称" prop="name">
-                    <el-input v-model="ruleForm.name"></el-input>
+            <el-form :model="projectForm" :rules="rules" ref="projectForm" label-width="100px" class="demo-ruleForm">
+                <el-form-item label="项目名称" prop="name">
+                    <el-input v-model="projectForm.name"></el-input>
                 </el-form-item>
-                
-
-                
-                <el-form-item label="活动费用" prop="fee">
-                    <el-input-number v-model="ruleForm.fee" :min="10" :max="999"></el-input-number>
+                <el-form-item label="活动" prop="event">
+                    <el-select v-model="projectForm.event" placeholder="请选择活动">
+                        <el-option v-for="item in Eligibility" :key="item.value" :label="item.label"
+                            :value="item.value"></el-option>
+                    </el-select>
                 </el-form-item>
-                <el-form-item label="活动照片" prop="img">
+                <el-form-item label="项目照片" prop="uploadImg">
                     <ImageUploader ref="imageSet1" />
                 </el-form-item>
 
                 <el-form-item>
-                    <el-button type="primary" @click="submitForm('ruleForm')">立即创建</el-button>
-                    <el-button @click="resetForm('ruleForm')">重置</el-button>
+                    <el-button type="primary" @click="submitForm('projectForm')">立即创建</el-button>
+                    <el-button @click="resetForm('projectForm')">重置</el-button>
                 </el-form-item>
             </el-form>
         </el-dialog>
     </div>
 </template>
 <script>
+import ImageUploader from '@/components/ImageUploader.vue';
 import { projectList } from '@/api'
 import { eventTypes } from '@/api'
+import { addProject } from '@/api'
+
 
 export default {
+    components: { ImageUploader },
     data() {
         return {
-            dialogFormVisible: true,
+            dialogFormVisible: false,
             projectConfig: {
                 name: "",
                 event: "",
@@ -92,7 +95,7 @@ export default {
             },
             currentPage: 1,
             projectTotal: 0,
-            
+            Eligibility: [],
             tableData: [{
                 id: '',
                 start: '',
@@ -101,6 +104,20 @@ export default {
                 eventName: '工作人员',
                 state: '未激活'
             }],
+            projectForm: {
+                
+                name: '',
+                event: '',
+            },
+            rules: {
+                name: [
+                    { required: true, message: '请输入项目名称', trigger: 'blur' },
+                    { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+                ],
+                event: [
+                    { required: true, message: '请选择活动区域', trigger: 'change' }
+                ]
+            }
         }
     },
     methods: {
@@ -118,6 +135,7 @@ export default {
                 });
             })
         },
+
         //时间格式转换
         DateToString(dateString) {
             const date = new Date(dateString);
@@ -152,6 +170,50 @@ export default {
 
             this.listSelectCondition(this.projectConfig);
         },
+        //表单关闭
+        handleClose(done) {
+            this.$confirm('确认关闭？')
+                .then(_ => {
+                    done();
+
+                })
+                .catch(_ => { });
+        },
+        //提交表单
+        submitForm(formName) {
+            this.$refs[formName].validate((valid) => {
+                if (valid) {
+
+                    alert('submit!');
+                    this.$refs.imageSet1.uploadImages()
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
+
+                this.projectForm.imageUrls = this.$refs.imageSet1.imageUrls;
+                this.projectForm.deleteImagesUrls = this.$refs.imageSet1.deleteImagesUrls;
+                console.log('完整数据', this.projectForm)
+
+                addProject(this.projectForm).then((data)=>{
+                    console.log("项目添加的响应",data)
+                })
+
+            });
+        },
+        //清空表单
+        resetForm(formName) {
+            this.$refs[formName].resetFields();
+            this.$refs.imageSet1.clearImgSet();
+        },
+        //参加
+        attendProjectById(row) {
+            console.log("参加", row)
+        },
+        //删除
+        deleteProjectById(row) {
+            console.log("删除", row)
+        },
     },
     mounted() {
         eventTypes().then((data) => {
@@ -159,8 +221,9 @@ export default {
             const types = data.data.data
             for (let index = 0; index < types.length; index++) {
                 const element = types[index];
-                this.Eligibility.push({ 'value': element, 'label': element })
 
+                this.Eligibility.push({ 'value': element.EventID, 'label': element.EventName })
+                console.log("label",this.Eligibility)
             }
         })
         this.listSelectCondition(this.userConfig)
