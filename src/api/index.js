@@ -12,8 +12,8 @@ export const updateImg = (formData) => {
     })
 }
 
-export const updateEvent = (eventId,event)=>{
-    return http.put("/event/"+eventId,event)
+export const updateEvent = (eventId, event) => {
+    return http.put("/event/" + eventId, event)
 }
 
 export const deleteImg = (deleteImg) => {
@@ -22,7 +22,7 @@ export const deleteImg = (deleteImg) => {
 
 export const deleteEvent = (deleteEventId) => {
     console.log("删除的事件编号", deleteEventId);
-    return http.delete('/event/'+deleteEventId)
+    return http.delete('/event/' + deleteEventId)
 }
 
 export const getEventImg = (eventId) => {
@@ -56,13 +56,13 @@ export const logout = () => {
 }
 
 export const register = (userInfo) => {
-    console.log("注册参数",userInfo)
+    console.log("注册参数", userInfo)
     return http.post('/user/register', userInfo)
 }
 
-export const deleteUser = (id) =>{
-    console.log("删除",id)
-    return http.delete('/user/'+id)
+export const deleteUser = (id) => {
+    console.log("删除", id)
+    return http.delete('/user/' + id)
 }
 
 export const userList = (listSelectCondition) => {
@@ -72,14 +72,14 @@ export const userList = (listSelectCondition) => {
     })
 }
 
-export const athleteAdd = (athlete) =>{
+export const athleteAdd = (athlete) => {
     console.log("athleteAdd参数", athlete);
-    return http.post('/athlete',athlete)
+    return http.post('/athlete', athlete)
 }
 
-export const examineSports = (id) =>{
+export const examineSports = (id) => {
     console.log("运动员审核通过", id);
-    return http.get('/user/athlete/'+id)
+    return http.get('/user/athlete/' + id)
 }
 
 export const projectList = (listSelectCondition) => {
@@ -89,13 +89,41 @@ export const projectList = (listSelectCondition) => {
     })
 }
 
-export const eventTypes = () =>{
+export const eventTypes = () => {
     console.log("活动类型")
     return http.get("/event/eventType")
 }
 
 export const addProject = (projectList) => {
+    console.log("添加项目")
     return http.post('/project', projectList)
+}
+
+export const selectProject = (id) => {
+    console.log("根据编号查询项目")
+    return http.get('/project/' + id)
+}
+
+export const editProject = (data) => {
+    console.log("编辑项目")
+    return http.put('/project/' + data.id, data)
+}
+
+export const deleteProject = (id) =>{
+    console.log("删除项目")
+    return http.delete("/project/"+id)
+}
+
+export const joinProject = (data) =>{
+    console.log("运动员参加项目")
+    return http.post("/project/join",data)
+}
+
+export const RegistrationList = (data) =>{
+    console.log("参赛记录搜索",data)
+    return http.get("/registration/page", {
+        params: data,
+    })
 }
 
 // export const loadImageAsBase64 =(url) =>{

@@ -30,7 +30,8 @@
 
                 <el-table-column label="操作" width="265">
                     <template slot-scope="scope">
-                        <el-button @click="deleteUserById(scope.row)" type="text" size="small">删除</el-button>
+                        <el-button v-if="permissionVerification(scope.row)=='工作人员'"  @click="deleteUserById(scope.row)" type="text" size="small" disabled>删除</el-button>
+                        <el-button v-else  @click="deleteUserById(scope.row)" type="text" size="small">删除</el-button>
                         <el-button v-if="applyPlayer(scope.row)" @click="sportsEdit(scope.row)" type="text"
                             size="small">运动员申请</el-button>
                     </template>
@@ -60,6 +61,9 @@ export default {
         this.selectPageDate(this.userConfig)
     },
     methods: {
+        permissionVerification(row){
+            return row.type;
+        },
         applyPlayer(row) {
             if (row.applyState === '-1' || row.type === "运动员" || row.type === "工作人员") return false;
             return true;

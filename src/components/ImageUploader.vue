@@ -7,7 +7,7 @@
         <div class="image-container">
             <div v-for="(image, index) in imageUrls" :key="index" class="image-item">
                 <img :src="image.url" alt="上传的图片" />
-                <button class="delete-button" @click="removeImage(index)">删除</button>
+                <button class="delete-button" @click.prevent="removeImage(index)">删除</button>
             </div>
         </div>
 

@@ -30,7 +30,9 @@ http.interceptors.response.use(function (response) {
   return response;
 }, function (error) {
   // 超出 2xx 范围的状态码都会触发该函数。
+  console.log("网址",window.location.href)
   // 对响应错误做点什么
+  window.location.href = '/login'; 
   return Promise.reject(error);
 });
 

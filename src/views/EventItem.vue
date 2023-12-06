@@ -34,9 +34,12 @@
                 </el-table-column>
                 <el-table-column label="操作" width="265">
                     <template slot-scope="scope">
+                        <el-button v-if="applyPlayer()" @click="editProjectById(scope.row)" type="text"
+                            size="small">编辑</el-button>
                         <el-button v-if="applyPlayer()" @click="deleteProjectById(scope.row)" type="text"
                             size="small">删除</el-button>
-                        <el-button v-else @click="attendProjectById(scope.row)" type="text" size="small">参加</el-button>
+                        <el-button v-else-if="scope.row.isJoin=='未参加'" @click="attendProjectById(scope.row)" type="text" size="small">参加</el-button>
+                        <el-button v-else  type="text" size="small" disabled>{{scope.row.isJoin}}</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -44,13 +47,36 @@
         <!-- 分页按钮 -->
         <div class="block">
             <!-- <span class="demonstration">完整功能</span> -->
-            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
-                :page-sizes="[3, 4, 5, 7]" :page-size="5" layout="total, sizes, prev, pager, next, jumper"
-                :total=projectTotal>
+            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                :current-page="projectConfig.currentPage" :page-sizes="[3, 4, 5, 7]" :page-size="projectConfig.pageSize"
+                layout="total, sizes, prev, pager, next, jumper" :total=projectTotal>
             </el-pagination>
         </div>
 
-        <!-- 添加Form -->
+        <!-- 修改弹窗 -->
+        <el-dialog title="修改活动" :visible.sync="dialogUpdateForm" :before-close="handleClose">
+            <el-form :model="projectForm" :rules="rules" ref="projectForm" label-width="100px" class="demo-ruleForm">
+                <el-form-item label="项目名称" prop="name">
+                    <el-input v-model="projectForm.name"></el-input>
+                </el-form-item>
+                <el-form-item label="活动" prop="event">
+                    <el-select v-model="projectForm.event" placeholder="请选择活动">
+                        <el-option v-for="item in Eligibility" :key="item.value" :label="item.label"
+                            :value="item.value"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="项目照片" prop="uploadImg">
+                    <ImageUploader ref="imageSet2" />
+                </el-form-item>
+
+                <el-form-item>
+                    <el-button type="primary" @click="updateForm()">确定修改</el-button>
+                    <el-button @click="resetForm('projectForm')">重置</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
+
+        <!-- 添加弹窗 -->
         <el-dialog title="添加项目" :visible.sync="dialogFormVisible" :before-close="handleClose">
             <el-form :model="projectForm" :rules="rules" ref="projectForm" label-width="100px" class="demo-ruleForm">
                 <el-form-item label="项目名称" prop="name">
@@ -79,12 +105,17 @@ import ImageUploader from '@/components/ImageUploader.vue';
 import { projectList } from '@/api'
 import { eventTypes } from '@/api'
 import { addProject } from '@/api'
+import { selectProject } from '@/api'
+import { editProject } from '@/api'
+import { deleteProject } from '@/api'
+import { joinProject } from '@/api'
 
 
 export default {
     components: { ImageUploader },
     data() {
         return {
+            dialogUpdateForm: false,
             dialogFormVisible: false,
             projectConfig: {
                 name: "",
@@ -102,10 +133,10 @@ export default {
                 date: '2016-05-02',
                 name: '王小虎',
                 eventName: '工作人员',
+                eventId: '',
                 state: '未激活'
             }],
             projectForm: {
-                
                 name: '',
                 event: '',
             },
@@ -166,7 +197,7 @@ export default {
         handleCurrentChange(val) {
             console.log(`当前页: ${val}`);
             this.projectConfig.currentPage = val;
-            console.log("currentPage", this.eventList)
+            console.log("currentPage", this.tableData)
 
             this.listSelectCondition(this.projectConfig);
         },
@@ -183,8 +214,6 @@ export default {
         submitForm(formName) {
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-
-                    alert('submit!');
                     this.$refs.imageSet1.uploadImages()
                 } else {
                     console.log('error submit!!');
@@ -195,8 +224,22 @@ export default {
                 this.projectForm.deleteImagesUrls = this.$refs.imageSet1.deleteImagesUrls;
                 console.log('完整数据', this.projectForm)
 
-                addProject(this.projectForm).then((data)=>{
-                    console.log("项目添加的响应",data)
+                addProject(this.projectForm).then((data) => {
+                    if (data.data.code != 0) {
+                        this.$notify({
+                            title: '成功',
+                            message: '添加成功',
+                            type: 'success'
+                        });
+                        console.log("添加完成", data)
+                    } else {
+                        this.$notify.error({
+                            title: '添加失败',
+                            message: data.data.msg
+                        });
+                    }
+                    this.dialogFormVisible = false;
+                    this.listSelectCondition()
                 })
 
             });
@@ -209,11 +252,104 @@ export default {
         //参加
         attendProjectById(row) {
             console.log("参加", row)
+
+            this.$confirm('活动项目:' + row.name + "——" + row.eventName, '参加项目', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'success'
+            }).then(() => {
+                const joinData = {eventId:row.eventId,projectId:row.projectId,userId:this.$store.state.userInfo.userId}
+                joinProject(joinData).then((data) => {
+                    console.log("参加项目的响应结果",data);
+
+                })
+
+                this.$message({
+                    type: 'success',
+                    message: '成功参加!'
+                });
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消参加'
+                });
+            });
+
+
         },
         //删除
         deleteProjectById(row) {
             console.log("删除", row)
+
+            deleteProject(row.projectId).then((data) => {
+                if (data.data.code != 0) {
+                    this.$notify({
+                        title: '删除成功',
+                        message: data.data.msg,
+                        type: 'success'
+                    });
+                    console.log("删除成功", data)
+
+                    this.dialogUpdateForm = false;
+                    if (this.projectTotal % this.projectConfig.pageSize == 1 && this.projectConfig.currentPage > 1) {
+
+                        this.handleCurrentChange(this.projectConfig.currentPage - 1)
+                    } else {
+                        this.listSelectCondition()
+                    }
+
+                } else {
+                    this.$notify.error({
+                        title: '删除失败，请刷新重试',
+                        message: data.data.msg
+                    });
+                }
+
+            })
         },
+        editProjectById(row) {
+            console.log("编辑", row)
+            this.dialogUpdateForm = true;
+            selectProject(row.projectId).then((data) => {
+                console.log(data.data.data)
+
+                const project = data.data.data;
+                this.projectForm.id = row.projectId;
+                this.projectForm.name = project.name;
+                this.projectForm.event = project.event;
+                this.$refs.imageSet2.clearImgSet()
+                for (let index = 0; index < project.addImage.length; index++) {
+                    const element = project.addImage[index];
+                    this.$refs.imageSet2.addImage(element)
+                }
+            })
+            //
+        },
+        updateForm() {
+            this.$refs.imageSet2.uploadImages()
+            this.projectForm.imageUrls = this.$refs.imageSet2.imageUrls;
+            this.projectForm.deleteImagesUrls = this.$refs.imageSet2.deleteImagesUrls;
+            console.log("修改后的·数据", this.projectForm);
+            editProject(this.projectForm).then((data) => {
+                console.log("响应", data)
+                if (data.data.code != 0) {
+                    this.$notify({
+                        title: '修改成功',
+                        message: data.data.msg,
+                        type: 'success'
+                    });
+                    console.log("修改完成", data)
+
+                    this.dialogUpdateForm = false;
+                    this.listSelectCondition()
+                } else {
+                    this.$notify.error({
+                        title: '修改失败',
+                        message: data.data.msg
+                    });
+                }
+            })
+        }
     },
     mounted() {
         eventTypes().then((data) => {
@@ -223,7 +359,7 @@ export default {
                 const element = types[index];
 
                 this.Eligibility.push({ 'value': element.EventID, 'label': element.EventName })
-                console.log("label",this.Eligibility)
+                console.log("label", this.Eligibility)
             }
         })
         this.listSelectCondition(this.userConfig)
