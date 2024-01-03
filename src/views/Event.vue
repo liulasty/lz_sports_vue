@@ -11,13 +11,13 @@
             <div class="top_right">
                 <el-input class="eventName" placeholder="请输入活动关键词" size="small" v-model="eventList.name" clearable>
                 </el-input>
-                <el-select v-model="eventList.type" size="small" placeholder="请选择活动类型" clearable>
+                <el-select class="selectStatus" v-model="eventList.type" size="small" placeholder="请选择活动类型" clearable>
                     <el-option v-for="item in Eligibility" :key="item.value" :label="item.label" :value="item.value">
                     </el-option>
                 </el-select>
                 <el-date-picker size="small" v-model="eventList.date" type="date" placeholder="日期之后" clearable>
                 </el-date-picker>
-                <el-button type="primary" size="small" @click="listSelectCondition">查询</el-button>
+                <el-button class="selectButton" type="primary" size="small" @click="listSelectCondition">查询</el-button>
             </div>
 
 
@@ -53,7 +53,7 @@
 
                 <el-form-item>
                     <el-button type="primary" @click="submitForm('ruleForm')">立即创建</el-button>
-                    <el-button @click="resetForm('ruleForm')">重置</el-button>
+                    <el-button type="info" @click="resetForm('ruleForm')">重置</el-button>
                 </el-form-item>
             </el-form>
         </el-dialog>
@@ -64,7 +64,7 @@
                     <el-input v-model="updateForm.name"></el-input>
                 </el-form-item>
                 <el-form-item label="活动时间" required>
-                    <el-date-picker v-model="updateForm.date" type="datetimerange" range-separator="至"
+                    <el-date-picker v-model="updateForm.date1" type="datetimerange" range-separator="至"
                         start-placeholder="开始日期" end-placeholder="结束日期">
                     </el-date-picker>
                 </el-form-item>
@@ -87,25 +87,27 @@
 
                 <el-form-item>
                     <el-button type="primary" @click="updateEventForm()">确定修改</el-button>
-                    <el-button @click="resetForm('updateForm')">重置</el-button>
+                    <el-button type="info" @click="resetForm('updateForm')">重置</el-button>
                 </el-form-item>
             </el-form>
         </el-dialog>
 
 
         <el-table :data="tableData" border style="width: 100%">
-            <el-table-column prop="eventName" label="活动名称" width="350">
+            <el-table-column prop="eventName" label="活动名称" width="150">
             </el-table-column>
             <el-table-column prop="registrationStart" label="活动开始时间" width="250">
             </el-table-column>
-            <el-table-column prop="eligibility" label="参赛资格" width="250">
+            <el-table-column prop="eligibility" label="参赛资格" width="150">
             </el-table-column>
             <el-table-column prop="registrationFee" label="参赛费用" width="220">
             </el-table-column>
+            <el-table-column prop="registrationDeadline" label="活动截止报名时间" width="250">
+            </el-table-column>
             <el-table-column fixed="right" label="操作" width="200">
                 <template slot-scope="scope">
-                    <el-button @click="editEvent(scope.row)" type="text" size="small">编辑</el-button>
-                    <el-button @click="deleteEvent(scope.row)" type="text" size="small">删除</el-button>
+                    <el-button type="primary" @click="editEvent(scope.row)" size="small">编辑</el-button>
+                    <el-button @click="deleteEvent(scope.row)" type="warning" size="small">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -125,7 +127,7 @@ import { addEvent } from '@/api';
 import { list } from '@/api';
 import { selectEventById } from '@/api';
 import { deleteEvent } from '@/api'
-import {updateEvent} from '@/api'
+import { updateEvent } from '@/api'
 
 
 
@@ -177,7 +179,7 @@ export default {
 
             ruleForm: {
                 name: '',
-                date1: [new Date(2023, 10, 10, 10, 10), new Date(2023, 10, 11, 10, 10)],
+                date1: [new Date(), new Date()],
                 type: [],
                 fee: 0,
             },
@@ -200,7 +202,7 @@ export default {
             updateForm: {
                 id: 1,
                 name: '',
-                date: [new Date(2023, 10, 10, 10, 10), new Date(2023, 10, 11, 10, 10)],
+                date1: [new Date(), new Date()],
                 type: [],
                 fee: 0,
                 imageUrls: []
@@ -250,7 +252,9 @@ export default {
 
                 if (valid) {
                     this.$refs.imageSet1.uploadImages()
-
+                    this.ruleForm.imageUrls = this.$refs.imageSet1.imageUrls;
+                    this.ruleForm.deleteImagesUrls = this.$refs.imageSet1.deleteImagesUrls;
+                    this.$refs.imageSet1.initImgSet()
 
                 } else {
                     console.log('error submit!!');
@@ -259,8 +263,7 @@ export default {
 
             });
 
-            this.ruleForm.imageUrls = this.$refs.imageSet1.imageUrls;
-            this.ruleForm.deleteImagesUrls = this.$refs.imageSet1.deleteImagesUrls;
+
             console.log('完整数据', this.ruleForm)
             addEvent(this.ruleForm).then((data) => {
                 if (data.data.code != 0) {
@@ -276,19 +279,20 @@ export default {
                         message: data.data.msg
                     });
                 }
-                
+
                 this.listSelectCondition()
             })
             this.loading = false;
+
             this.dialogFormVisible = false
             this.resetForm(formName)
-            this.$refs.imageSet1.clearImgSet()
+
         },
         resetForm(formName) {
 
             this.$refs[formName].resetFields();
 
-            this.$refs.imageSet2.clearImgSet()
+
 
         },
         //时间格式转换
@@ -320,6 +324,7 @@ export default {
                 this.eventTotal = data.data.data.total
                 this.tableData.forEach(item => {
                     item.registrationStart = this.DateToString(item.registrationStart)
+                    item.registrationDeadline = this.DateToString(item.registrationDeadline)
                 })
             })
 
@@ -327,7 +332,7 @@ export default {
         //事件编辑
         editEvent(data) {
             this.dialogUpdateForm = true;
-            this.updateForm.id=data.eventId;
+            this.updateForm.id = data.eventId;
             selectEventById(data.eventId).then((data) => {
                 console.log("编辑·", data)
                 if (data.data.code != 1) {
@@ -336,51 +341,46 @@ export default {
                         title: '失败',
                         message: '请刷新重试'
                     });
-                    
+
                     return;
                 }
 
                 const eventDate = data.data.data
-                this.updateForm.date = []
                 console.log("需要编辑的数据·", eventDate)
-                
+
                 this.updateForm.name = eventDate.name;
                 this.updateForm.fee = eventDate.fee;
-                const date = new Date(eventDate.date);
-
-                // 将解析出来的时间格式化为指定格式
-                const arr = [
-                    date.getFullYear(),
-                    date.getMonth(),
-                    date.getDate(),
-                    date.getHours(),
-                    date.getMinutes(),
-                ];
-                // 假设组件内部定义了一个名为"updateForm"的data属性
-                this.updateForm.date = [
-                    new Date(arr[0], arr[1], arr[2], arr[3], arr[4]),
-                    new Date(arr[0], arr[1], arr[2] + 2, arr[3], arr[4])
-                ];
+                
+                this.updateForm.date1 = [
+                    this.dataAddEight(new Date(eventDate.date))
+                    , 
+                    this.dataAddEight(new Date(eventDate.end))
+                    ]
                 this.updateForm.type = eventDate.type;
-                this.$refs.imageSet2.clearImgSet()
+                this.$refs.imageSet2.initImgSet()
                 for (let index = 0; index < eventDate.imageUrls.length; index++) {
                     const element = eventDate.imageUrls[index];
                     this.$refs.imageSet2.addImage(element)
                 }
                 console.log("需要修改的图片", this.$refs.imageSet2.imageUrls)
                 console.log("填充", this.updateForm)
-
+                
             })
 
         },
+        dataAddEight(date) {
+            date.setHours(date.getHours() - 8);
+            return date
+        },
+        //修改活动
         updateEventForm() {
             this.$refs.imageSet2.uploadImages()
             console.log("全部图片", this.$refs.imageSet2.imageUrls)
             console.log("需要删除的图片", this.$refs.imageSet2.deleteImagesUrls)
-            this.updateForm.imageUrls=this.$refs.imageSet2.imageUrls;
-            this.updateForm.deleteImagesUrls=this.$refs.imageSet2.deleteImagesUrls;
+            this.updateForm.imageUrls = this.$refs.imageSet2.imageUrls;
+            this.updateForm.deleteImagesUrls = this.$refs.imageSet2.deleteImagesUrls;
             console.log("修改的表单数据", this.updateForm);
-            updateEvent(this.updateForm.id,this.updateForm).then((data)=>{
+            updateEvent(this.updateForm.id, this.updateForm).then((data) => {
                 console.log(data)
                 if (data.data.code != 0) {
                     this.$notify({
@@ -389,7 +389,7 @@ export default {
                         type: 'success'
                     });
                     console.log("修改完成", data)
-                    
+
                     this.dialogUpdateForm = false;
                     this.listSelectCondition()
                 } else {
@@ -398,21 +398,21 @@ export default {
                         message: data.data.msg
                     });
                 }
-                
-                
+
+
             })
 
         },
         //删除活动
         deleteEvent(event) {
-            
+
             this.$confirm('此操作将永久删除, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'success'
             }).then(() => {
                 deleteEvent(event.eventId).then((data) => {
-                    console.log("删除结果",data);
+                    console.log("删除结果", data);
                     if (data.data.code === 1) {
                         this.$notify({
                             title: '成功',
@@ -433,7 +433,7 @@ export default {
                     message: '已取消删除'
                 });
             });
-            
+
         },
 
 
@@ -460,6 +460,15 @@ export default {
             input {
                 padding-right: 5px;
             }
+        }
+
+        .selectButton {
+            margin: 0px 10px;
+
+        }
+
+        .selectStatus {
+            margin: 0px 5px;
         }
     }
 }

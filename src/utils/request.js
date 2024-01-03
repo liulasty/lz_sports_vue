@@ -12,7 +12,7 @@ http.interceptors.request.use(function (config) {
   // 在发送请求之前做些什么
   // 获取JWT令牌
   const token = localStorage.getItem('jwtToken');
-  console.log("token", token)
+  // console.log("token", token)
   // 在请求头中添加自定义内容
   config.headers['jwt'] = token;
   
@@ -32,7 +32,7 @@ http.interceptors.response.use(function (response) {
   // 超出 2xx 范围的状态码都会触发该函数。
   console.log("网址",window.location.href)
   // 对响应错误做点什么
-  window.location.href = '/login'; 
+  // window.location.href = '/login'; 
   return Promise.reject(error);
 });
 

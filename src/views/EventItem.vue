@@ -10,13 +10,13 @@
             <div class="top_right">
                 <el-input class="projectName" placeholder="请输入活动关键词" size="small" v-model="projectConfig.name" clearable>
                 </el-input>
-                <el-select v-model="projectConfig.event" size="small" placeholder="请选择活动类型" clearable>
+                <el-select class="selectStatus" v-model="projectConfig.event" size="small" placeholder="请选择活动类型" clearable>
                     <el-option v-for="item in Eligibility" :key="item.value" :label="item.label" :value="item.value">
                     </el-option>
                 </el-select>
                 <el-date-picker size="small" v-model="projectConfig.date" type="date" placeholder="日期之后" clearable>
                 </el-date-picker>
-                <el-button type="primary" size="small" @click="listSelectCondition">查询</el-button>
+                <el-button class="selectButton" type="primary" size="small" @click="listSelectCondition">查询</el-button>
             </div>
 
 
@@ -34,13 +34,18 @@
                 </el-table-column>
                 <el-table-column label="操作" width="265">
                     <template slot-scope="scope">
-                        <el-button v-if="applyPlayer()" @click="editProjectById(scope.row)" type="text"
-                            size="small">编辑</el-button>
-                        <el-button v-if="applyPlayer()" @click="deleteProjectById(scope.row)" type="text"
-                            size="small">删除</el-button>
-                        <el-button v-else-if="scope.row.isJoin=='未参加'" @click="attendProjectById(scope.row)" type="text" size="small">参加</el-button>
-                        <el-button v-else  type="text" size="small" disabled>{{scope.row.isJoin}}</el-button>
+                        <div v-if="applyPlayer()">
+                            <el-button @click="editProjectById(scope.row)" type="primary" size="small">编辑</el-button>
+                            <el-button @click="deleteProjectById(scope.row)" type="warning" size="small">删除</el-button>
+                        </div>
+                        <div v-else>
+                            <el-button v-if="scope.row.isJoin === '未参加'" @click="attendProjectById(scope.row)" type="primary"
+                                size="small">{{ scope.row.isJoin }}</el-button>
+                            <el-button type="success" size="small" disabled>{{ scope.row.isJoin }}</el-button>
+                        </div>
+
                     </template>
+
                 </el-table-column>
             </el-table>
         </div>
@@ -184,8 +189,11 @@ export default {
         },
         //角色的分工
         applyPlayer() {
-            if (this.$store.state.userInfo.type === "运动员") return false;
-            return true;
+            if (this.$store.state.userInfo.type === "运动员") {
+                console.log("运动员")
+                return false
+            }
+            return true
         },
         //分页按钮
         handleSizeChange(val) {
@@ -258,9 +266,9 @@ export default {
                 cancelButtonText: '取消',
                 type: 'success'
             }).then(() => {
-                const joinData = {eventId:row.eventId,projectId:row.projectId,userId:this.$store.state.userInfo.userId}
+                const joinData = { eventId: row.eventId, projectId: row.projectId, userId: this.$store.state.userInfo.userId }
                 joinProject(joinData).then((data) => {
-                    console.log("参加项目的响应结果",data);
+                    console.log("参加项目的响应结果", data);
 
                 })
 
@@ -307,6 +315,7 @@ export default {
 
             })
         },
+        //编辑项目
         editProjectById(row) {
             console.log("编辑", row)
             this.dialogUpdateForm = true;
@@ -359,7 +368,7 @@ export default {
                 const element = types[index];
 
                 this.Eligibility.push({ 'value': element.EventID, 'label': element.EventName })
-                console.log("label", this.Eligibility)
+                // console.log("label", this.Eligibility)
             }
         })
         this.listSelectCondition(this.userConfig)
@@ -386,6 +395,15 @@ export default {
             input {
                 padding-right: 5px;
             }
+        }
+
+        .selectButton {
+            margin: 0px 10px;
+
+        }
+
+        .selectStatus {
+            margin: 0px 5px;
         }
     }
 }

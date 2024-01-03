@@ -6,13 +6,13 @@
             <div class="top_right">
                 <el-input class="userName" placeholder="请输入用户名关键词" size="small" v-model="userConfig.name" clearable>
                 </el-input>
-                <el-select v-model="userConfig.type" size="small" placeholder="请选择类型" clearable>
+                <el-select class="selectStatus" v-model="userConfig.type" size="small" placeholder="请选择类型" clearable>
                     <el-option v-for="item in userEligibility" :key="item.value" :label="item.label" :value="item.value">
                     </el-option>
                 </el-select>
                 <el-date-picker size="small" v-model="userConfig.date" type="date" placeholder="日期之后" clearable>
                 </el-date-picker>
-                <el-button type="primary" size="small" @click="listSelectCondition">查询</el-button>
+                <el-button class="selectButton" type="primary" size="small" @click="listSelectCondition">查询</el-button>
             </div>
 
 
@@ -30,14 +30,45 @@
 
                 <el-table-column label="操作" width="265">
                     <template slot-scope="scope">
-                        <el-button v-if="permissionVerification(scope.row)=='工作人员'"  @click="deleteUserById(scope.row)" type="text" size="small" disabled>删除</el-button>
-                        <el-button v-else  @click="deleteUserById(scope.row)" type="text" size="small">删除</el-button>
-                        <el-button v-if="applyPlayer(scope.row)" @click="sportsEdit(scope.row)" type="text"
-                            size="small">运动员申请</el-button>
+                        <el-button v-if="permissionVerification(scope.row) == '工作人员'" @click="deleteUserById(scope.row)"
+                            type="warning" size="small" disabled>删除</el-button>
+                        <el-button v-else @click="deleteUserById(scope.row)" type="warning" size="small">删除</el-button>
+                        <el-button v-if="applyPlayer(scope.row)" @click="sportsEdit(scope.row)" type="info"
+                            size="small">查看运动员申请</el-button>
                     </template>
                 </el-table-column>
             </el-table>
         </div>
+
+        <!-- 修改弹窗 -->
+        <el-dialog title="是否允许该用户成为运动员" :visible.sync="dialogUpdateForm">
+            <el-form :model="userForm" label-width="100px" class="demo-ruleForm">
+                <el-form-item label="姓名" prop="name">
+                    <el-input v-model="userForm.name" disabled></el-input>
+                </el-form-item>
+
+                <el-form-item label="性别" prop="gender">
+                    <el-radio v-model="userForm.gender" label="男" disabled>男</el-radio>
+                    <el-radio v-model="userForm.gender" label="女" disabled>女</el-radio>
+                </el-form-item>
+
+                <el-form-item label="年龄" prop="age">
+                    <el-input-number v-model="userForm.age" controls-position="right" @change="handleChange" :min="18"
+                        :max="64" disabled></el-input-number>
+                </el-form-item>
+
+                <el-form-item label="电话号码" prop="contact">
+                    <el-input v-model="userForm.contact" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="申请时间" prop="applyTime">
+                    <el-input v-model="userForm.applyTime" disabled></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="agreeApply(userForm.userId)">允许该用户成为运动员</el-button>
+                    <el-button @click="refuseApply(userForm.userId)">拒绝申请</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
 
 
 
@@ -54,6 +85,7 @@
 import { userList } from "@/api"
 import { deleteUser } from "@/api"
 import { examineSports } from "@/api"
+import { selectApply } from "@/api"
 
 export default {
     mounted() {
@@ -61,7 +93,7 @@ export default {
         this.selectPageDate(this.userConfig)
     },
     methods: {
-        permissionVerification(row){
+        permissionVerification(row) {
             return row.type;
         },
         applyPlayer(row) {
@@ -75,6 +107,9 @@ export default {
                 this.selectPageDate(this.userConfig)
             })
         },
+        handleChange(value) {
+            console.log(value);
+        },
         handleClick(row) {
             console.log(row);
         },
@@ -84,12 +119,12 @@ export default {
         },
         handleSizeChange(val) {
             console.log(`每页 ${val} 条`);
-            this.userConfig.pageSize=val;
+            this.userConfig.pageSize = val;
             this.selectPageDate(this.userConfig)
         },
         handleCurrentChange(val) {
             console.log(`当前页: ${val}`);
-            this.userConfig.currentPage=val;
+            this.userConfig.currentPage = val;
             this.selectPageDate(this.userConfig)
         },
         //时间格式转换
@@ -119,43 +154,50 @@ export default {
             })
 
         },
-        //允许该用户成为运动员
+        //查看该用户的申请成为运动员
         sportsEdit(row) {
+            this.dialogUpdateForm = true;
             console.log("允许该用户成为运动员?", row);
 
-            this.$confirm('允许该用户成为运动员?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'info'
-            }).then(() => {
-
-                examineSports(row.id).then((data) => {
-                    console.log("审核响应", data);
-                    this.$message({
-                        type: 'success',
-                        message: '修改成功!'
-                    });
-                }).catch(() => {
-                    this.$message({
-                        type: 'warning',
-                        message: '修改失败!'
-                    });
-                })
-
-            }).catch((data) => {
-                console.log("data", data)
+            selectApply(row.id).then((data) => {
+                console.log("审核响应", data);
+                this.userForm.name = data.data.data.name
+                this.userForm.gender = data.data.data.gender
+                this.userForm.age = data.data.data.age
+                this.userForm.contact = data.data.data.contact
+                this.userForm.applyTime = this.DateToString(data.data.data.applyTime)
+                this.userForm.athleteId = data.data.data.athleteId
+                console.log(this.userForm)
+            }).catch(() => {
                 this.$message({
-                    type: 'info',
-                    message: '已取消操作'
+                    type: 'warning',
+                    message: '查询失败!'
                 });
-            });
-
+            })
+        },
+        agreeApply(id) {
+            examineSports(id).then((data) => {
+                console.log("审核响应", data);
+                this.$message({
+                    type: 'success',
+                    message: '修改成功!'
+                });
+            }).catch(() => {
+                this.$message({
+                    type: 'warning',
+                    message: '修改失败!'
+                });
+            })
+            this.dialogUpdateForm = true;
+        },
+        refuseApply(id) {
 
         }
     },
 
     data() {
         return {
+            dialogUpdateForm: false,
             currentPage: 1,
             userTotal: 0,
             tableData: [{
@@ -186,6 +228,16 @@ export default {
             useForm: {
 
             },
+            userForm: {
+                athleteId: 4,
+                userId: 2,
+                name: "吴晨浩",
+                age: "20",
+                gender: "男",
+                contact: "男",
+                state: "成功",
+                applyTime: "2023-12-19T09:25:20.000+00:00",
+            },
         }
     },
 
@@ -205,6 +257,16 @@ export default {
         justify-content: flex-end;
         align-items: center;
         margin-left: auto;
+
+
+        .selectButton {
+            margin: 0px 10px;
+
+        }
+
+        .selectStatus {
+            margin: 0px 5px;
+        }
     }
 }
 </style>

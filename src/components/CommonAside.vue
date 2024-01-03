@@ -49,7 +49,7 @@ export default {
         '$route'(to, from) {
             // 在路由变化时触发，你可以在这里更新面包屑的样式
             // 比如根据当前路由信息 to 来设置面包屑样式
-            console.log("to ",to)
+            console.log("to ", to)
         }
     },
     data() {
@@ -144,6 +144,116 @@ export default {
         refreshPage() {
             this.$router.go(0);
         },
+        userPermissions(type) {
+            if (type === '工作人员') {
+                this.menuData = [
+                    {
+                        path: '/home',
+                        name: 'home',
+                        label: '首页',
+                        icon: 's-home',
+                        url: 'Home/Home'
+                    },
+                    {
+                        path: '/user',
+                        name: 'user',
+                        label: '用户管理',
+                        icon: 'user',
+                        url: 'user/user'
+                    },
+                    {
+                        path: '/event',
+                        name: 'event',
+                        label: '活动管理',
+                        icon: 's-custom',
+                        url: 'eventMange/eventMange'
+                    },
+                    {
+                        path: '/athlete',
+                        name: 'athlete',
+                        label: '运动员参赛管理',
+                        icon: 's-custom',
+                        url: 'athleteMange/athleteMange'
+                    },
+                    {
+                        path: '/eventItem',
+                        name: 'eventItem',
+                        label: '项目管理',
+                        icon: 's-custom',
+                        url: 'eventItemMange/eventItemMange'
+                    },
+                    {
+                        label: '其他',
+                        icon: 'location',
+                        children: [
+                            {
+                                path: '/page1',
+                                name: 'page1',
+                                label: '页面1',
+                                icon: 'setting',
+                                url: 'Other/PageOne'
+                            },
+                            {
+                                path: '/page2',
+                                name: 'page2',
+                                label: '页面2',
+                                icon: 'setting',
+                                url: 'Other/PageTwo'
+                            },
+                        ]
+
+                    }
+                ]
+            } else if (type === '用户') {
+                this.menuData = [
+                    {
+                        path: '/home',
+                        name: 'home',
+                        label: '首页',
+                        icon: 's-home',
+                        url: 'Home/Home'
+                    },
+                    {
+                        path: '/athleteApplication',
+                        name: 'athleteApplication',
+                        label: '运动员申请',
+                        icon: 's-custom',
+                        url: 'athleteApplication/athleteApplication'
+                    }
+
+
+                ]
+            } else {
+                this.menuData = [
+                    {
+                        path: '/home',
+                        name: 'home',
+                        label: '首页',
+                        icon: 's-home',
+                        url: 'Home/Home'
+                    },
+                    {
+                        path: '/eventItem',
+                        name: 'eventItem',
+                        label: '项目参看和报名',
+                        icon: 's-custom',
+                        url: 'eventItemMange/eventItemMange'
+                    },
+                    {
+                        path: '/athlete',
+                        name: 'athlete',
+                        label: '我的参赛管理',
+                        icon: 's-custom',
+                        url: 'athleteMange/athleteMange'
+                    },
+
+
+                ]
+            }
+        }
+    },
+    mounted() {
+        this.userPermissions(this.$store.state.userInfo.type)
     },
     computed: {
         //没有子菜单

@@ -5,13 +5,15 @@
 
             <!-- 查询组件 -->
             <div class="top_right">
-                <el-input class="projectName" placeholder="请输入运动员姓名" size="small" v-model="registrationConfig.name" clearable>
+                <el-input class="projectName" placeholder="请输入运动员姓名" size="small" v-model="registrationConfig.name"
+                    clearable>
                 </el-input>
-                <el-select class="selectStatus" v-model="registrationConfig.status" size="small" placeholder="请选择参赛状态" clearable>
+                <el-select class="selectStatus" v-model="registrationConfig.status" size="small" placeholder="请选择参赛状态"
+                    clearable>
                     <el-option v-for="item in Eligibility" :key="item.value" :label="item.label" :value="item.value">
                     </el-option>
                 </el-select>
-                <el-date-picker size="small" v-model="registrationConfig.date" type="datetime" placeholder="日期之后" clearable>
+                <el-date-picker size="small" v-model="registrationConfig.date" type="datetime" placeholder="日期之后">
                 </el-date-picker>
                 <el-button class="selectButton" type="primary" size="small" @click="listSelectCondition">查询</el-button>
             </div>
@@ -33,10 +35,19 @@
                 </el-table-column>
                 <el-table-column label="操作" width="258">
                     <template slot-scope="scope">
-                       
-                        
-                        <el-button v-if="scope.row.registrationStatus=== '审核中'" @click="attendProjectById(scope.row)" type="text" size="small">参加</el-button>
-                        <el-button type="text" size="small" disabled>{{ scope.row.isJoin }}</el-button>
+                        <div v-if="applyPlayer()">
+                            <el-button v-if="scope.row.registrationStatus === '审核中'"
+                                @click="attendProjectById(scope.row.id)" type="primary" size="small">同意</el-button>
+                            <el-button class="button-disabled" v-else type="success" size="small">通过</el-button>
+                            <el-button type="warning" size="small"
+                                @click="deleteRegistrationById(scope.row.id)">删除</el-button>
+                        </div>
+                        <div v-else>
+                            <el-button>
+                                
+                            </el-button>
+                        </div>
+
                     </template>
                 </el-table-column>
             </el-table>
@@ -45,15 +56,18 @@
         <div class="block">
             <!-- <span class="demonstration">完整功能</span> -->
             <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
-                :current-page="registrationConfig.currentPage" :page-sizes="[3, 4, 5, 7]" :page-size="registrationConfig.pageSize"
-                layout="total, sizes, prev, pager, next, jumper" :total=projectTotal>
+                :current-page="registrationConfig.currentPage" :page-sizes="[3, 4, 5, 7]"
+                :page-size="registrationConfig.pageSize" layout="total, sizes, prev, pager, next, jumper"
+                :total=projectTotal>
             </el-pagination>
         </div>
     </div>
 </template>
 <script>
 import { RegistrationList } from '@/api'
+import { deleteRegistration } from '@/api'
 
+import { attendProject } from '@/api'
 
 export default {
     data() {
@@ -61,18 +75,15 @@ export default {
             dialogUpdateForm: false,
             dialogFormVisible: false,
             registrationConfig: {
-                name: "",
-                status: "",
-                date: "",
+                name: '',
+                status: '',
+                date: '',
                 currentPage: 1,
                 pageSize: 5,
             },
             currentPage: 1,
             projectTotal: 0,
             Eligibility: [{
-                value: '未参加',
-                label: '未参加'
-            }, {
                 value: '审核中',
                 label: '审核中'
             }, {
@@ -80,35 +91,32 @@ export default {
                 label: '已通过'
             }],
             tableData: [{
-                athleteId:4,
-                athleteName:"吴晨浩",
-                eventId:74,
-                eventName:"测试1",
-                id:1,
-                itemId:1,
-                itemName:"项目测试",
-                registrationStatus:"审核中",
-                registrationTime:"无网络数据",
+                athleteId: 4,
+                athleteName: "吴晨浩",
+                eventId: 74,
+                eventName: "测试1",
+                id: 1,
+                itemId: 1,
+                itemName: "项目测试",
+                registrationStatus: "审核中",
+                registrationTime: "无网络数据",
             }],
-            projectForm: {
-                name: '',
-                event: '',
-            },
-            rules: {
-                name: [
-                    { required: true, message: '请输入项目名称', trigger: 'blur' },
-                    { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
-                ],
-                event: [
-                    { required: true, message: '请选择活动区域', trigger: 'change' }
-                ]
-            }
         }
     },
     methods: {
-
+        //角色的分工
+        applyPlayer() {
+            if (this.$store.state.userInfo.type === "运动员") {
+                console.log("运动员")
+                return false
+            }
+            return true
+        },
+        isButtonDisabled(status) {
+            if (status === '通过') return true
+        },
         listSelectCondition() {
-            console.log("搜索")
+
             this.selectPageDate(this.registrationConfig)
         },
         handleSizeChange(val) {
@@ -121,15 +129,17 @@ export default {
             this.registrationConfig.currentPage = val;
             this.selectPageDate(this.registrationConfig)
         },
+        //参赛记录查询
         selectPageDate(Config) {
+
             RegistrationList(Config).then((data) => {
                 console.log("参赛记录查询", data.data)
                 this.tableData = data.data.data.records
-                this.projectTotal =data.data.data.total
+                this.projectTotal = data.data.data.total
                 for (const key in this.tableData) {
                     if (Object.hasOwnProperty.call(this.tableData, key)) {
                         const element = this.tableData[key];
-                        this.tableData[key].registrationTime=this.DateToString(element.registrationTime)
+                        this.tableData[key].registrationTime = this.DateToString(element.registrationTime)
                     }
                 }
             })
@@ -149,10 +159,42 @@ export default {
 
             return formattedDate
         },
+        //删除记录
+        deleteRegistrationById(id) {
+            deleteRegistration(id).then((data) => {
+                console.log("删除结果", data);
+                if (data.data.code === 1) {
+                    this.$notify({
+                        title: '成功',
+                        message: '删除成功',
+                        type: 'success'
+                    });
+                    this.listSelectCondition()
+                } else {
+                    this.$notify.error({
+                        title: '删除失败',
+                        message: data.data.msg
+                    });
+                }
+            })
+        },
+        attendProjectById(id) {
+            attendProject(id).then((data) => {
+                console.log("更新参赛响应", data)
+            })
+        }
+
+
     },
     mounted() {
-        
+
+
+
+
         this.listSelectCondition(this.registrationConfig)
+
+
+
     },
 }
 </script>
@@ -178,14 +220,19 @@ export default {
             }
         }
 
-        .selectButton{
-           margin: 0px 10px;
-            
+        .selectButton {
+            margin: 0px 10px;
+
         }
 
-        .selectStatus{
+        .selectStatus {
             margin: 0px 5px;
         }
     }
+}
+
+.button-disabled {
+    pointer-events: none;
+    opacity: 0.5;
 }
 </style>

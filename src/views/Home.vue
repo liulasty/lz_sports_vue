@@ -1,7 +1,7 @@
 <template>
     <el-row>
         <el-col :span="8" style="padding-right: 5px;">
-            <el-card class="box-card" :body-style="{ height: '202px' }">
+            <el-card class="box-card" :body-style="{ height: '220px' }">
                 <div class="userImg">
                     <img src="../assets/logo.png" alt="">
                     <div class="user-info">
@@ -34,19 +34,19 @@
                 </el-card>
             </div>
 
-            <el-card :body-style="{ padding: '5px', width: '850px', }">
+            <el-card :body-style="{ padding: '0px', width: '850px', }">
                 <div ref="echarts1" class="echarts1" style="height: 220px">
 
                 </div>
             </el-card>
             <div class="graph">
-                <el-card :body-style="{ padding: '5px', width: '400px', height: '150px' }">
-                    <div ref="echarts2" style="height: 150px;width: 400px;">
+                <el-card :body-style="{ padding: '5px', width: '480px', height: '170px' }">
+                    <div ref="echarts2" style="height: 150px;width: 470px;">
 
                     </div>
                 </el-card>
-                <el-card :body-style="{ padding: '5px', width: '400px', height: '150px' }">
-                    <div ref="echarts3" style="height: 150px;width: 400px;">
+                <el-card :body-style="{ padding: '5px', width: '360px', height: '170px' }">
+                    <div ref="echarts3" style="height: 160px;width: 350px;">
 
                     </div>
                 </el-card>
@@ -75,37 +75,37 @@ export default {
             },],
             countData: [
                 {
-                    name: "今日支付订单",
+                    name: "运动员总数",
                     value: 1234,
                     icon: "success",
                     color: "#2ec7c9",
                 },
                 {
-                    name: "今日收藏订单",
+                    name: "活动总数",
                     value: 210,
                     icon: "star-on",
                     color: "#ffb980",
                 },
                 {
-                    name: "今日未支付订单",
+                    name: "项目总数",
                     value: 1234,
                     icon: "s-goods",
                     color: "#5ab1ef",
                 },
                 {
-                    name: "本月支付订单",
+                    name: "本月新增运动员",
                     value: 1234,
                     icon: "success",
                     color: "#2ec7c9",
                 },
                 {
-                    name: "本月收藏订单",
+                    name: "本月新增活动",
                     value: 210,
                     icon: "star-on",
                     color: "#ffb980",
                 },
                 {
-                    name: "本月未支付订单",
+                    name: "本月新增项目",
                     value: 1234,
                     icon: "s-goods",
                     color: "#5ab1ef",
@@ -127,12 +127,19 @@ export default {
         this.userInfo.username = this.$store.state.userInfo.username;
         this.userInfo.img = this.$store.state.userInfo.img;
         this.userInfo.type = this.$store.state.userInfo.type;
-        
+
 
         getData().then((data) => {
             const dataAll = data.data.data
             this.tableData = dataAll.tableData
-            console.log("tableData", this.tableData)
+            // console.log("tableData", this.tableData)
+            this.countData[0].value = dataAll.totalNumberAthletes;
+            this.countData[1].value = dataAll.totalNumberActivities;
+            this.countData[2].value = dataAll.totalNumberProjects;
+            this.countData[3].value = dataAll.newAthletesAddedMonth;
+            this.countData[4].value = dataAll.newActivitiesAddedMonth;
+            this.countData[5].value = dataAll.newProjectsAddedMonth;
+            
 
             this.tableData.forEach(item => {
                 item.date = this.DateToString(item.date)
@@ -141,7 +148,7 @@ export default {
             // 指定图表的配置项和数据
             var option = {
                 title: {
-                    text: 'Stacked Line'
+                    text: '各项活动参赛方式'
                 },
                 // tooltip: 用于配置图表的工具提示（Tooltip）。
                 tooltip: {
@@ -191,9 +198,9 @@ export default {
                 ]
             };
 
-            const { orderData, userData, videoData } = dataAll
-            console.log("orderData", dataAll.orderData)
-            const xAxis = Object.keys(orderData.data[1])
+            const { orderData, userData, doughnutData } = dataAll
+            // console.log("orderData", dataAll.orderData)
+            const xAxis = Object.keys(orderData.data[0])
 
             option.xAxis = {
                 data: orderData.date,
@@ -237,7 +244,7 @@ export default {
                 },
                 calculable: true,
                 legend: {
-                    data: ['新增用户', '活跃用户'],
+                    data: ['新增学生', '新增运动员'],
                     itemGap: 2,
                     left: 'center',
                     top: 0,
@@ -255,95 +262,122 @@ export default {
                 xAxis: [
                     {
                         type: 'category',
-                        // data: userData.map(item => item.date)
+                        data: userData.map(item => item.date)
                     }
                 ],
                 yAxis: [
                     {
                         type: 'value',
-                        name: '人数 (每千人)',
+                        name: '人数 ',
                         nameTextStyle: {
                             align: 'left',
                         },
-
-                        axisLabel: {
-                            formatter: function (a) {
-                                a = +a;
-                                return isFinite(a) ? echarts.format.addCommas(+a / 1000) : '';
-                            }
-                        }
                     }
                 ],
                 series: [
                     {
-                        name: '新增用户',
+                        name: '新增学生',
                         type: 'bar',
-                        // data: userData.map(item => item.new)
+                        data: userData.map(item => item.addUser)
                     },
                     {
-                        name: '活跃用户',
+                        name: '新增运动员',
                         type: 'bar',
-                        // data: userData.map(item => item.active)
+                        data: userData.map(item => item.addAthlete)
                     }
                 ]
             };
 
             echarts2.setOption(option);
+            let data_pie = []; // 创建一个空的数组来存储数据
+            let total_pie = 0;
+            // 使用循环将用户输入的数据添加到数组中
+            for (let i = 0; i < doughnutData.length; i++) {
+                data_pie.push({ value: doughnutData[i].nums, name: doughnutData[i].type });
+                total_pie = total_pie + doughnutData[i].nums;
+            }
 
+            let data_end = [
+                {
+                    // make an record to fill the bottom 50%
+                    value: total_pie,
+                    itemStyle: {
+                        // stop the chart from rendering this piece
+                        color: 'none',
+                        decal: {
+                            symbol: 'none'
+                        }
+                    },
+                    label: {
+                        show: false
+                    }
+                }
+            ];
+            data_pie.push(data_end[0]);
             //饼图
             const echarts3 = echarts.init(this.$refs.echarts3);
 
+            // 配置项
             option = {
-                title: {
-                    text: 'Referer of a Website',
-                    subtext: '副标题',
-                    left: 'center',
-                    textStyle: {
-                        fontSize: 14,
-                        fontWeight: 'bold',
-                    }
-                },
                 tooltip: {
-                    trigger: 'item'
-                },
-                // grid: 配置图表的网格，用于控制图表的位置和大小。
-                grid: {
-                    // left, right, bottom: 这些属性指定了图表的边距，即图表与容器边界之间的空白区域。这些值通常以百分比或像素表示。
-                    left: '3%',
-                    right: '4%',
-                    bottom: '3%',
-                    // containLabel: true: 如果设置为 true，则表示网格将包含轴标签和标题等内容。这确保了网格的大小会自动调整，以便完全容纳所有内容。
-                    containLabel: true
+                    trigger: '参加项目运动员占比'
                 },
                 legend: {
-                    orient: 'vertical',
-                    left: 'left'
+                    top: '2%',
+                    left: 'center',
+                    // doesn't perfectly work with our tricks, disable it
+                    // 启用选中模式
+                    selectedMode: false,
+                    type: 'scroll',
                 },
                 series: [
                     {
                         name: 'Access From',
                         type: 'pie',
-                        radius: '50%',
-                        data: videoData,
-                        emphasis: {
-                            itemStyle: {
-                                shadowBlur: 10,
-                                shadowOffsetX: 0,
-                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        // 半径
+                        radius: ['40%', '80%'],
+                        // 中心
+                        center: ['50%', '80%'],
+                        // 调整起始角度
+                        startAngle: 180,
+                        
+                        // formatter(param) { return param.name + ' (' + param.percent * 2 + '%)'; } 是用来格式化标签内容的函数。
+                        // 在这里，param 是传入的参数对象，包含了标签所需的数据。通过这个函数，可以自定义标签的显示内容。
+                        // 在这个例子中，标签的内容包括了数据项的名称和一个经过修改的百分比。这里的 param.percent * 2 对百分比进行了修改，将其乘以 2。
+                        label: {
+                            //表示显示标签，如果设置为 false 则会隐藏标签。
+
+                            show: false,
+
+                            formatter(param) {
+                                // correct the percentage
+                                return param.name + ' (' + param.percent * 2 + '%)';
+                            }
+                        },
+                        data: data_pie,
+                        tooltip: {
+                            trigger: 'item', // 鼠标悬停到扇形上触发显示
+                            formatter(param) {
+                                // 自定义提示框内容的显示
+                                return '名称：' + param.name + '<br/>' +
+                                    '数值：' + param.value + '<br/>' +
+                                    '占比：' + (param.percent * 2).toFixed(2) + '%';
                             }
                         }
-                    }
-                ]
-            };
+                    },
 
+                ],
+
+
+            };
             echarts3.setOption(option);
         })
 
     },
     methods: {
         //时间格式转换
-        DateToString() {
-            const dateString = "2000-11-09T18:10:00.000+00:00";
+        DateToString(dateString) {
+
             const date = new Date(dateString);
 
             const year = date.getFullYear();
@@ -462,10 +496,6 @@ export default {
     justify-content: space-between;
     padding: 0px;
 
-    .el-card {
-        margin-top: 5PX;
-        height: 152PX;
-        width: 49%;
-    }
+
 }
 </style>

@@ -83,6 +83,16 @@ export const examineSports = (id) => {
     return http.get('/user/athlete/' + id)
 }
 
+export const refusePlayer = (id) => {
+    console.log("运动员审核不通过", id);
+    return http.delete('/user/athlete/' + id)
+}
+
+export const selectApply =(id) =>{
+    console.log("查询运动员申请",id)
+    return http.get("/athlete/"+id)
+}
+
 export const projectList = (listSelectCondition) => {
     console.log("查询参数", listSelectCondition);
     return http.get('/project/page', {
@@ -157,10 +167,7 @@ export const attendProject =(id) =>{
     return http.put("/registration/"+id)
 }
 
-export const selectApply =(id) =>{
-    console.log("查询运动员申请",id)
-    return http.get("/athlete/"+id)
-}
+
 
 
 // export const loadImageAsBase64 =(url) =>{

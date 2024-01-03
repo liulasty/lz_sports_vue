@@ -8,7 +8,7 @@
                     <input type="text" placeholder="用户名" class="input" />
                     <input type="email" placeholder="邮箱" class="input" />
                     <input type="password" placeholder="密码" class="input" />
-                    <button class="btn" @click="registerCheck">注册</button>
+                    <button class="btn" @click.prevent="registerCheck">注册</button>
                 </form>
             </div>
 
@@ -151,7 +151,7 @@ export default {
                 this.loginInfo.email = email;
                 register(this.loginInfo).then((data) => {
                     console.log(data.data)
-                    if (data.status == 200) {
+                    if (data.data.code != 0) {
                         this.$message({
                             showClose: true,
                             message: data.data.msg,
@@ -171,7 +171,7 @@ export default {
         //校验账号密码
         validateStr(input, type) {
             var regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            var regexUsername = /^\w{3,7}$/;
+            var regexUsername = /^\w{3,8}$/;
             var regexPassword = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,16}$/;
             if (regexEmail.test(input) & type == 'e') {
                 return "e-mail";

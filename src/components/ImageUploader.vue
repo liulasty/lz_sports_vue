@@ -97,7 +97,6 @@ export default {
                 console.log("修改的阿里云图片", this.imageUrls[i])
             }
 
-            // this.clearImgSet()
         },
         deleteImage() {
             for (let i = 0; i < this.deleteImagesUrls.length; i++) {
@@ -139,9 +138,6 @@ export default {
                         };
                         reader.readAsDataURL(blob);
                     })
-                    .catch(error => {
-                        reject(new Error('Failed to load image'));
-                    });
             });
         },
         //发送总共的集合
@@ -178,16 +174,16 @@ export default {
         testImg() {
             console.log('testIMg')
         },
-        //清除图片的集合
-        clearImgSet() {
+        
+        initImgSet(){
             console.log("清理图片集合")
             //图片的集合
-            this.imageUrls = [],
-                //需要删除的图片
-                this.deleteImagesUrls = [],
-                //原有的图片
-                this.OriginalPhotos = [],
-                this.$refs.fileInput.value=null;
+            this.imageUrls = []
+            //需要删除的图片
+            this.deleteImagesUrls = []
+            //原有的图片
+            this.OriginalPhotos = []
+            this.$refs.fileInput.value = null
         }
 
     },
