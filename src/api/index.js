@@ -1,5 +1,6 @@
 
 import http from '../utils/request'
+
 // import aliyun from '../utils/ailiyun.js'
 
 export const getData = () => {
@@ -109,22 +110,58 @@ export const editProject = (data) => {
     return http.put('/project/' + data.id, data)
 }
 
-export const deleteProject = (id) =>{
+export const deleteProject = (id) => {
     console.log("删除项目")
-    return http.delete("/project/"+id)
+    return http.delete("/project/" + id)
 }
 
-export const joinProject = (data) =>{
+export const joinProject = (data) => {
     console.log("运动员参加项目")
-    return http.post("/project/join",data)
+    return http.post("/project/join", data)
 }
 
-export const RegistrationList = (data) =>{
-    console.log("参赛记录搜索",data)
+export const RegistrationList = (data) => {
+    console.log("参赛记录搜索", data)
+
+    if (data.date != "") {
+        let dateString = data.date;
+        let date = new Date(dateString);
+        date.setHours(date.getHours() + 8);
+
+        const data1 = {
+            name:data.name,
+            status:data.status,
+            date: date,
+            currentPage: 1,
+            pageSize: 5,
+        }
+
+        return http.get("/registration/page", {
+            params: data1,
+        })
+    }
+
+
     return http.get("/registration/page", {
         params: data,
     })
 }
+
+export const deleteRegistration = (id) => {
+    console.log("删除参赛记录")
+    return http.delete("/registration/"+id)
+}
+
+export const attendProject =(id) =>{
+    console.log("同意参加项目",id)
+    return http.put("/registration/"+id)
+}
+
+export const selectApply =(id) =>{
+    console.log("查询运动员申请",id)
+    return http.get("/athlete/"+id)
+}
+
 
 // export const loadImageAsBase64 =(url) =>{
 //     return aliyun.get(url)
