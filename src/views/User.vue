@@ -27,11 +27,9 @@
                 </el-table-column>
                 <el-table-column prop="state" label="状态" width="220">
                 </el-table-column>
-
                 <el-table-column label="操作" width="265">
                     <template slot-scope="scope">
-                        <el-button v-if="permissionVerification(scope.row) == '工作人员'" @click="deleteUserById(scope.row)"
-                            type="warning" size="small" disabled>删除</el-button>
+                        <el-button v-if="scope.row.type === '工作人员'" type="warning" size="small" disabled>删除</el-button>
                         <el-button v-else @click="deleteUserById(scope.row)" type="warning" size="small">删除</el-button>
                         <el-button v-if="applyPlayer(scope.row)" @click="sportsEdit(scope.row)" type="info"
                             size="small">查看运动员申请</el-button>
@@ -86,6 +84,7 @@ import { userList } from "@/api"
 import { deleteUser } from "@/api"
 import { examineSports } from "@/api"
 import { selectApply } from "@/api"
+import { refusePlayer } from '@/api'
 
 export default {
     mounted() {
@@ -93,11 +92,8 @@ export default {
         this.selectPageDate(this.userConfig)
     },
     methods: {
-        permissionVerification(row) {
-            return row.type;
-        },
         applyPlayer(row) {
-            if (row.applyState === '-1' || row.type === "运动员" || row.type === "工作人员") return false;
+            if (row.applyState !== '申请中') return false;
             return true;
         },
         deleteUserById(row) {
@@ -114,16 +110,16 @@ export default {
             console.log(row);
         },
         listSelectCondition() {
-            console.log("搜索")
+            // console.log("搜索")
             this.selectPageDate(this.userConfig)
         },
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            // console.log(`每页 ${val} 条`);
             this.userConfig.pageSize = val;
             this.selectPageDate(this.userConfig)
         },
         handleCurrentChange(val) {
-            console.log(`当前页: ${val}`);
+            // console.log(`当前页: ${val}`);
             this.userConfig.currentPage = val;
             this.selectPageDate(this.userConfig)
         },
@@ -157,7 +153,7 @@ export default {
         //查看该用户的申请成为运动员
         sportsEdit(row) {
             this.dialogUpdateForm = true;
-            console.log("允许该用户成为运动员?", row);
+            // console.log("允许该用户成为运动员?", row);
 
             selectApply(row.id).then((data) => {
                 console.log("审核响应", data);
@@ -167,6 +163,7 @@ export default {
                 this.userForm.contact = data.data.data.contact
                 this.userForm.applyTime = this.DateToString(data.data.data.applyTime)
                 this.userForm.athleteId = data.data.data.athleteId
+                this.userForm.userId = data.data.data.userId
                 console.log(this.userForm)
             }).catch(() => {
                 this.$message({
@@ -175,6 +172,7 @@ export default {
                 });
             })
         },
+        //同意
         agreeApply(id) {
             examineSports(id).then((data) => {
                 console.log("审核响应", data);
@@ -182,15 +180,32 @@ export default {
                     type: 'success',
                     message: '修改成功!'
                 });
+                this.listSelectCondition();
+                this.dialogUpdateForm = false;
             }).catch(() => {
                 this.$message({
                     type: 'warning',
                     message: '修改失败!'
                 });
             })
-            this.dialogUpdateForm = true;
+
         },
+        //拒绝
         refuseApply(id) {
+            refusePlayer(id).then((data) => {
+                console.log("审核响应", data);
+                this.$message({
+                    type: 'success',
+                    message: '拒绝成功!'
+                });
+                this.listSelectCondition();
+            }).catch(() => {
+                this.$message({
+                    type: 'warning',
+                    message: '拒绝失败!'
+                });
+            })
+            this.dialogUpdateForm = false;
 
         }
     },

@@ -34,6 +34,7 @@
                         start-placeholder="开始日期" end-placeholder="结束日期">
                     </el-date-picker>
                 </el-form-item>
+                
 
                 <el-form-item label="参赛资格" prop="type">
                     <el-radio-group v-model="ruleForm.type">
@@ -45,7 +46,7 @@
                 </el-form-item>
 
                 <el-form-item label="活动费用" prop="fee">
-                    <el-input-number v-model="ruleForm.fee" :min="10" :max="999"></el-input-number>
+                    <el-input-number v-model="ruleForm.fee" :min="0" :max="9"></el-input-number>
                 </el-form-item>
                 <el-form-item label="活动照片" prop="img">
                     <ImageUploader ref="imageSet1" />
@@ -55,7 +56,7 @@
                     <el-button type="primary" @click="submitForm('ruleForm')">立即创建</el-button>
                     <el-button type="info" @click="resetForm('ruleForm')">重置</el-button>
                 </el-form-item>
-            </el-form>
+            </el-form>    
         </el-dialog>
 
         <el-dialog title="修改活动" :visible.sync="dialogUpdateForm" :before-close="handleClose">
@@ -79,7 +80,7 @@
                 </el-form-item>
 
                 <el-form-item label="活动费用" prop="fee">
-                    <el-input-number v-model="updateForm.fee" :min="10" :max="999"></el-input-number>
+                    <el-input-number v-model="updateForm.fee" :min="0" :max="9"></el-input-number>
                 </el-form-item>
                 <el-form-item label="活动照片" prop="img">
                     <ImageUploader :childData="parentMessage" ref="imageSet2" />
@@ -182,6 +183,7 @@ export default {
                 date1: [new Date(), new Date()],
                 type: [],
                 fee: 0,
+                limitation:'',
             },
             rules: {
                 name: [
@@ -350,12 +352,12 @@ export default {
 
                 this.updateForm.name = eventDate.name;
                 this.updateForm.fee = eventDate.fee;
-                
+
                 this.updateForm.date1 = [
                     this.dataAddEight(new Date(eventDate.date))
-                    , 
+                    ,
                     this.dataAddEight(new Date(eventDate.end))
-                    ]
+                ]
                 this.updateForm.type = eventDate.type;
                 this.$refs.imageSet2.initImgSet()
                 for (let index = 0; index < eventDate.imageUrls.length; index++) {
@@ -364,10 +366,11 @@ export default {
                 }
                 console.log("需要修改的图片", this.$refs.imageSet2.imageUrls)
                 console.log("填充", this.updateForm)
-                
+
             })
 
         },
+        //处理时间
         dataAddEight(date) {
             date.setHours(date.getHours() - 8);
             return date

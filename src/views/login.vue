@@ -2,7 +2,7 @@
     <div id="LogionBody">
         <div class="container panel-active">
             <!-- 注册 -->
-            <div class="formbox register">
+            <div class="formBox register">
                 <form action="#" class="form" id="form1">
                     <h2 class="title">注 册</h2>
                     <input type="text" placeholder="用户名" class="input" />
@@ -13,12 +13,12 @@
             </div>
 
             <!-- 登录 -->
-            <div class="formbox login">
+            <div class="formBox login">
                 <form action="#" class="form" id="form2">
                     <h2 class="title">登 陆</h2>
                     <input type="text" placeholder="邮箱" class="input" />
                     <input type="password" placeholder="密码" class="input" />
-                    <a href="#" class="link">忘记密码？</a>
+                    <!-- <a href="#" class="link">忘记密码？</a> -->
                     <button class="btn" @click.prevent="loginCheck">登陆</button>
                 </form>
             </div>
@@ -199,7 +199,7 @@ export default {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background-image: url('../assets/bj.png');
+    background-image: url('../assets/snut.png');
     background-size: cover;
 }
 
@@ -212,7 +212,7 @@ export default {
 }
 
 
-.formbox {
+.formBox {
     height: 100%;
     position: absolute;
     top: 0;

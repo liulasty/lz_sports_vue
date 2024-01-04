@@ -38,14 +38,14 @@
                         <div v-if="applyPlayer()">
                             <el-button v-if="scope.row.registrationStatus === '审核中'"
                                 @click="attendProjectById(scope.row.id)" type="primary" size="small">同意</el-button>
-                            <el-button class="button-disabled" v-else type="success" size="small">通过</el-button>
-                            <el-button type="warning" size="small"
+                            <el-button v-if="scope.row.registrationStatus === '审核中'"
+                                @click="refuseProjectById(scope.row.id)" type="warning" size="small">拒绝</el-button>
+                            <el-button v-else type="warning" size="small"
                                 @click="deleteRegistrationById(scope.row.id)">删除</el-button>
                         </div>
                         <div v-else>
-                            <el-button>
-                                
-                            </el-button>
+                            <el-button type="warning" size="small"
+                                @click="deleteRegistrationById(scope.row.id)">删除</el-button>
                         </div>
 
                     </template>
@@ -68,6 +68,7 @@ import { RegistrationList } from '@/api'
 import { deleteRegistration } from '@/api'
 
 import { attendProject } from '@/api'
+import { refuseProject } from '@/api'
 
 export default {
     data() {
@@ -131,7 +132,6 @@ export default {
         },
         //参赛记录查询
         selectPageDate(Config) {
-
             RegistrationList(Config).then((data) => {
                 console.log("参赛记录查询", data.data)
                 this.tableData = data.data.data.records
@@ -178,9 +178,42 @@ export default {
                 }
             })
         },
+        //同意参加项目
         attendProjectById(id) {
             attendProject(id).then((data) => {
                 console.log("更新参赛响应", data)
+                if (data.data.code === 1) {
+                    this.$notify({
+                        title: '成功',
+                        message: data.data.msg,
+                        type: 'success'
+                    });
+                    this.listSelectCondition()
+                } else {
+                    this.$notify.error({
+                        title: '失败',
+                        message: data.data.msg
+                    });
+                }
+            })
+        },
+        //拒绝申请
+        refuseProjectById(id){
+            refuseProject(id).then((data) =>{
+                console.log("操作结果", data);
+                if (data.data.code === 1) {
+                    this.$notify({
+                        title: '成功',
+                        message: '拒绝成功',
+                        type: 'success'
+                    });
+                    this.listSelectCondition()
+                } else {
+                    this.$notify.error({
+                        title: '拒绝失败',
+                        message: data.data.msg
+                    });
+                }
             })
         }
 

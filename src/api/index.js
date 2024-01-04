@@ -1,4 +1,3 @@
-
 import http from '../utils/request'
 
 // import aliyun from '../utils/ailiyun.js'
@@ -93,6 +92,12 @@ export const selectApply =(id) =>{
     return http.get("/athlete/"+id)
 }
 
+export const DeleteRecord =(id) =>{
+    console.log("删除运动员申请记录",id)
+    return http.delete("/athlete/"+id)
+}
+
+
 export const projectList = (listSelectCondition) => {
     console.log("查询参数", listSelectCondition);
     return http.get('/project/page', {
@@ -120,6 +125,7 @@ export const editProject = (data) => {
     return http.put('/project/' + data.id, data)
 }
 
+
 export const deleteProject = (id) => {
     console.log("删除项目")
     return http.delete("/project/" + id)
@@ -128,6 +134,11 @@ export const deleteProject = (id) => {
 export const joinProject = (data) => {
     console.log("运动员参加项目")
     return http.post("/project/join", data)
+}
+
+export const refuseProject = (id) =>{
+    console.log("拒绝该运动员参加该项目")
+    return http.put("/registration/refuse/"+ id)
 }
 
 export const RegistrationList = (data) => {

@@ -1,7 +1,7 @@
 <template>
     <el-menu default-active="1-4-1" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose"
         :collapse="isCollapse" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
-        <h3>{{ isCollapse ? '后台' : '运动员报名管理系统' }}</h3>
+        <h3>{{ isCollapse ? '运动会' : '学生田径运动会报名系统' }}</h3>
         <el-menu-item @click="clickMenu(item)" v-for="item in noChildren" :key="item.name" :index="item.name">
             <i :class="`el-icon-${item.icon}`"></i>
             <span slot="title">{{ item.label }}</span>
@@ -204,7 +204,7 @@ export default {
 
                     }
                 ]
-            } else if (type === '用户') {
+            } else if (type === '学生') {
                 this.menuData = [
                     {
                         path: '/home',

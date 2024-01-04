@@ -8,10 +8,10 @@
 
             <!-- 查询组件 -->
             <div class="top_right">
-                <el-input class="projectName" placeholder="请输入活动关键词" size="small" v-model="projectConfig.name" clearable>
+                <el-input class="projectName" placeholder="请输入项目名称关键词" size="small" v-model="projectConfig.name" clearable>
                 </el-input>
                 <el-select class="selectStatus" v-model="projectConfig.event" size="small" placeholder="请选择活动类型" clearable>
-                    <el-option v-for="item in Eligibility" :key="item.value" :label="item.label" :value="item.value">
+                    <el-option v-for="item in Eligibility" :key="item.value" :label="item.label" :value="item.label">
                     </el-option>
                 </el-select>
                 <el-date-picker size="small" v-model="projectConfig.date" type="date" placeholder="日期之后" clearable>
@@ -21,29 +21,39 @@
 
 
         </div>
-        <!-- 表格 -->
+        <!-- 项目列表表格 -->
         <div class="projectTable">
             <el-table :data="tableData" border style="width: 100%">
-                <el-table-column fixed prop="start" label="开始日期" width="350">
+                <el-table-column fixed prop="start" label="开始日期" width="200">
                 </el-table-column>
-                <el-table-column prop="name" label="项目名称" width="220">
+                <el-table-column prop="name" label="项目名称" width="138">
                 </el-table-column>
-                <el-table-column prop="eventName" label="活动名称" width="220">
+                <el-table-column prop="eventName" label="活动名称" width="150">
                 </el-table-column>
-                <el-table-column prop="state" label="报名方式" width="220">
+                <el-table-column prop="state" label="报名方式" width="100">
                 </el-table-column>
-                <el-table-column label="操作" width="265">
+                <el-table-column prop="end" label="截止日期" width="200">
+                </el-table-column>
+                <el-table-column prop="limitation" label="限制条件" width="150">
+                </el-table-column>
+                <el-table-column prop="grade" label="参加年级" width="150">
+                </el-table-column>
+                <el-table-column label="操作" width="190">
                     <template slot-scope="scope">
                         <div v-if="applyPlayer()">
                             <el-button @click="editProjectById(scope.row)" type="primary" size="small">编辑</el-button>
                             <el-button @click="deleteProjectById(scope.row)" type="warning" size="small">删除</el-button>
                         </div>
-                        <div v-else>
-                            <el-button v-if="scope.row.isJoin === '未参加'" @click="attendProjectById(scope.row)" type="primary"
-                                size="small">{{ scope.row.isJoin }}</el-button>
-                            <el-button type="success" size="small" disabled>{{ scope.row.isJoin }}</el-button>
+                        <div v-else-if="isEligibility(scope.row)">
+                            <el-button v-if="scope.row.isJoin === '未参加'" @click="attendProjectById(scope.row)"
+                                type="primary" size="small">
+                                {{ scope.row.isJoin }}
+                            </el-button>
+                            <el-button v-else type="warning" disabled>{{ scope.row.isJoin }} </el-button>
                         </div>
-
+                        <div v-else>
+                            <el-button type="success" size="small" disabled>有限制,无法参加</el-button>
+                        </div>
                     </template>
 
                 </el-table-column>
@@ -70,6 +80,26 @@
                             :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
+                <el-form-item label="参赛限制" prop="limitation">
+                    <el-radio-group v-model="projectForm.limitation">
+                        <el-radio label="男" name="limitationUpdate"></el-radio>
+                        <el-radio label="女" name="limitationUpdate"></el-radio>
+                        <el-radio label="不限" name="limitationUpdate"></el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="参赛年级" prop="grade">
+                    <el-radio-group v-model="projectForm.grade">
+                        <el-radio label="一年级" name="gradeUpdate"></el-radio>
+                        <el-radio label="二年级" name="gradeUpdate"></el-radio>
+                        <el-radio label="三年级" name="gradeUpdate"></el-radio>
+                        <el-radio label="四年级" name="gradeUpdate"></el-radio>
+                        <el-radio label="五年级" name="gradeUpdate"></el-radio>
+                        <el-radio label="六年级" name="gradeUpdate"></el-radio>
+                        <el-radio label="七年级" name="gradeUpdate"></el-radio>
+                        <el-radio label="八年级" name="gradeUpdate"></el-radio>
+                        <el-radio label="九年级" name="gradeUpdate"></el-radio>
+                    </el-radio-group>
+                </el-form-item>
                 <el-form-item label="项目照片" prop="uploadImg">
                     <ImageUploader ref="imageSet2" />
                 </el-form-item>
@@ -93,6 +123,26 @@
                             :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
+                <el-form-item label="参赛限制" prop="limitation">
+                    <el-radio-group v-model="projectForm.limitation">
+                        <el-radio label="男" name="limitation"></el-radio>
+                        <el-radio label="女" name="limitation"></el-radio>
+                        <el-radio label="不限" name="limitation"></el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="参赛年级" prop="grade">
+                    <el-radio-group v-model="projectForm.grade">
+                        <el-radio label="一年级" name="grade"></el-radio>
+                        <el-radio label="二年级" name="grade"></el-radio>
+                        <el-radio label="三年级" name="grade"></el-radio>
+                        <el-radio label="四年级" name="grade"></el-radio>
+                        <el-radio label="五年级" name="grade"></el-radio>
+                        <el-radio label="六年级" name="grade"></el-radio>
+                        <el-radio label="七年级" name="grade"></el-radio>
+                        <el-radio label="八年级" name="grade"></el-radio>
+                        <el-radio label="九年级" name="grade"></el-radio>
+                    </el-radio-group>
+                </el-form-item>
                 <el-form-item label="项目照片" prop="uploadImg">
                     <ImageUploader ref="imageSet1" />
                 </el-form-item>
@@ -114,6 +164,7 @@ import { selectProject } from '@/api'
 import { editProject } from '@/api'
 import { deleteProject } from '@/api'
 import { joinProject } from '@/api'
+import { selectApply } from '@/api'
 
 
 export default {
@@ -144,15 +195,20 @@ export default {
             projectForm: {
                 name: '',
                 event: '',
+                limitation: '',
+                grade: ''
             },
             rules: {
                 name: [
                     { required: true, message: '请输入项目名称', trigger: 'blur' },
-                    { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+                    { min: 2, max: 6, message: '长度在 2 到 6 个字符', trigger: 'blur' }
                 ],
                 event: [
                     { required: true, message: '请选择活动区域', trigger: 'change' }
                 ]
+            },
+            playerInfo: {
+
             }
         }
     },
@@ -162,11 +218,13 @@ export default {
             // 初始化 tableData
             this.tableData = [];
             projectList(this.projectConfig).then((data) => {
-                console.log("查询到的数据", data.data)
+                // console.log("查询到的数据", data.data)
                 const records = data.data.data.records;
                 this.projectTotal = data.data.data.total;
                 records.forEach(element => {
                     element.start = this.DateToString(element.start)
+                    element.end = this.DateToString(element.end)
+
                     this.tableData.push(element);
                 });
             })
@@ -187,13 +245,51 @@ export default {
 
             return formattedDate
         },
+        //字符串到时间
+        parseDateFromString(dateString) {
+            var parts = dateString.match(/(\d+)/g);
+            // parts数组会包含年、月、日、小时和分钟的数字
+            return new Date(parts[0], parts[1] - 1, parts[2], parts[3], parts[4]);
+        },
         //角色的分工
         applyPlayer() {
             if (this.$store.state.userInfo.type === "运动员") {
-                console.log("运动员")
+                // console.log("运动员")
                 return false
             }
             return true
+        },
+        //判断运动员是否有资格
+        isEligibility(date) {
+            // console.log("这行信息", date)
+            // console.log("运动员信息", this.playerInfo)
+            const NOW = new Date();
+            const start = this.parseDateFromString(date.start)
+            const end = this.parseDateFromString(date.end)
+            if (start > NOW || end < NOW) {
+                console.log("时间未在范围内")
+                return false
+            }
+
+            if (this.playerInfo.grade !== date.grade) {
+                console.log("年级不符合")
+                return false
+            }
+
+            if (date.limitation != '不限') {
+                if (date.limitation !== this.playerInfo.gender) {
+                    console.log("性别不符合")
+                    return false
+                }
+            }
+            return true
+        },
+        //获取运动员信息
+        getPlayerInfo() {
+            selectApply(this.$store.state.userInfo.userId).then((data) => {
+                // console.log("运动员信息",data.data.data);
+                this.playerInfo = data.data.data;
+            })
         },
         //分页按钮
         handleSizeChange(val) {
@@ -257,11 +353,11 @@ export default {
             this.$refs[formName].resetFields();
             this.$refs.imageSet1.clearImgSet();
         },
-        //参加
+        //运动员参加项目
         attendProjectById(row) {
-            console.log("参加", row)
+            // console.log("参加", row)
 
-            this.$confirm('活动项目:' + row.name + "——" + row.eventName, '参加项目', {
+            this.$confirm('活动项目:' + row.name + "——" + row.grade + "——" + row.eventName, '参加项目', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'success'
@@ -276,13 +372,14 @@ export default {
                     type: 'success',
                     message: '成功参加!'
                 });
+                this.listSelectCondition()
             }).catch(() => {
                 this.$message({
                     type: 'info',
                     message: '已取消参加'
                 });
             });
-
+            
 
         },
         //删除
@@ -315,6 +412,7 @@ export default {
 
             })
         },
+        
         //编辑项目
         editProjectById(row) {
             console.log("编辑", row)
@@ -326,7 +424,9 @@ export default {
                 this.projectForm.id = row.projectId;
                 this.projectForm.name = project.name;
                 this.projectForm.event = project.event;
-                this.$refs.imageSet2.clearImgSet()
+                this.projectForm.limitation = project.limitation;
+                this.projectForm.grade = project.grade;
+                this.$refs.imageSet2.initImgSet()
                 for (let index = 0; index < project.addImage.length; index++) {
                     const element = project.addImage[index];
                     this.$refs.imageSet2.addImage(element)
@@ -334,6 +434,7 @@ export default {
             })
             //
         },
+        //提交修改
         updateForm() {
             this.$refs.imageSet2.uploadImages()
             this.projectForm.imageUrls = this.$refs.imageSet2.imageUrls;
@@ -372,6 +473,7 @@ export default {
             }
         })
         this.listSelectCondition(this.userConfig)
+        this.getPlayerInfo()
     },
 }
 </script>
@@ -406,5 +508,10 @@ export default {
             margin: 0px 5px;
         }
     }
+}
+
+.button-disabled {
+    pointer-events: none;
+    opacity: 0.5;
 }
 </style>

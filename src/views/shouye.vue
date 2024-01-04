@@ -2,7 +2,7 @@
     <div>
         <div id="homeBody">
             <div class="model">
-                <h1>浮云运动员管理系统</h1>
+                <h1>学生田径运动会报名系统</h1>
                 <button class="btn" @click="ToLogin">
                     去登录
                 </button>
@@ -40,7 +40,7 @@ export default {
 
 #homeBody {
     height: 100vh;
-    background: url('../assets/bj.png') no-repeat center center/cover;
+    background: url('../assets/snut.png') no-repeat center center/cover;
     background-size: cover;
     animation: animate 10s linear infinite alternate;
 }
