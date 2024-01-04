@@ -77,6 +77,16 @@ export const athleteAdd = (athlete) => {
     return http.post('/athlete', athlete)
 }
 
+export const getAthleteApply = (id) =>{
+    console.log("获取运动员申请记录", id);
+    return http.get('/athlete/apply/'+id)
+}
+
+export const getAthlete = (id) => {
+    console.log("获取运动员详细信息", id);
+    return http.get('/athlete/'+id)
+}
+
 export const examineSports = (id) => {
     console.log("运动员审核通过", id);
     return http.get('/user/athlete/' + id)
@@ -87,10 +97,7 @@ export const refusePlayer = (id) => {
     return http.delete('/user/athlete/' + id)
 }
 
-export const selectApply =(id) =>{
-    console.log("查询运动员申请",id)
-    return http.get("/athlete/"+id)
-}
+
 
 export const DeleteRecord =(id) =>{
     console.log("删除运动员申请记录",id)
@@ -139,6 +146,11 @@ export const joinProject = (data) => {
 export const refuseProject = (id) =>{
     console.log("拒绝该运动员参加该项目")
     return http.put("/registration/refuse/"+ id)
+}
+
+export const selectApply =(id) =>{
+    console.log("查询运动员申请参赛记录",id)
+    return http.get("/registration/"+id)
 }
 
 export const RegistrationList = (data) => {

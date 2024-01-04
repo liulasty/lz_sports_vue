@@ -199,7 +199,7 @@ export default {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background-image: url('../assets/snut.png');
+    background-image: url('../assets/huaduo.png');
     background-size: cover;
 }
 

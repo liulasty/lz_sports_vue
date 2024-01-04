@@ -40,7 +40,7 @@ export default {
 
 #homeBody {
     height: 100vh;
-    background: url('../assets/snut.png') no-repeat center center/cover;
+    background: url('../assets/huaduo.png') no-repeat center center/cover;
     background-size: cover;
     animation: animate 10s linear infinite alternate;
 }
@@ -60,7 +60,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10vw;
+    font-size: 8vw;
     background: url('../assets/bj.png') no-repeat center center/cover;
     -webkit-text-stroke: 4px #fff;
     color: transparent;

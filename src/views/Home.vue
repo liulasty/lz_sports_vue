@@ -11,7 +11,7 @@
                 </div>
                 <div class="login-info">
                     <p>时间：<span>2023年11月10日2时10分</span></p>
-                    <p>地点：<span>陕西理工大学</span></p>
+                    <p>地点：<span>教务处</span></p>
                 </div>
             </el-card>
             <el-card style="margin-top: 18PX;height: 310PX;">
@@ -148,7 +148,7 @@ export default {
             // 指定图表的配置项和数据
             var option = {
                 title: {
-                    text: '各项活动参赛方式'
+                    text: '各项报名方式的活动统计'
                 },
                 // tooltip: 用于配置图表的工具提示（Tooltip）。
                 tooltip: {
@@ -320,7 +320,7 @@ export default {
             // 配置项
             option = {
                 tooltip: {
-                    trigger: '参加项目运动员占比'
+                    // trigger: '参加项目运动员占比'
                 },
                 legend: {
                     top: '2%',

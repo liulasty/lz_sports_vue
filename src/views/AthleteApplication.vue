@@ -54,7 +54,7 @@
 import { athleteAdd } from '@/api'
 
 import { DeleteRecord } from '@/api'
-import { selectApply } from '@/api'
+import { getAthleteApply } from '@/api'
 export default {
     data() {
         return {
@@ -103,7 +103,7 @@ export default {
         },
         //查询申请状态
         selectPlayerState() {
-            selectApply(this.ruleForm.userId).then((data) => {
+            getAthleteApply(this.ruleForm.userId).then((data) => {
                 console.log("申请详细信息",data.data.data);
                 if (data.data.data.athleteState !== '未申请') {
                     this.athleteState = true;

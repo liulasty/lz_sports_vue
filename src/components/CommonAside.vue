@@ -246,7 +246,13 @@ export default {
                         icon: 's-custom',
                         url: 'athleteMange/athleteMange'
                     },
-
+                    {
+                        path: '/myInfo',
+                        name: 'myInfo',
+                        label: '我的个人信息',
+                        icon: 's-custom',
+                        url: 'myInfo/myInfo'
+                    }
 
                 ]
             }

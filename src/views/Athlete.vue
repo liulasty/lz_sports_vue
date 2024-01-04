@@ -36,22 +36,106 @@
                 <el-table-column label="操作" width="258">
                     <template slot-scope="scope">
                         <div v-if="applyPlayer()">
-                            <el-button v-if="scope.row.registrationStatus === '审核中'"
-                                @click="attendProjectById(scope.row.id)" type="primary" size="small">同意</el-button>
-                            <el-button v-if="scope.row.registrationStatus === '审核中'"
-                                @click="refuseProjectById(scope.row.id)" type="warning" size="small">拒绝</el-button>
+                            <el-button v-if="scope.row.registrationStatus === '审核中'" @click="examine(scope.row.id)"
+                                type="primary" size="small">查看申请</el-button>
                             <el-button v-else type="warning" size="small"
-                                @click="deleteRegistrationById(scope.row.id)">删除</el-button>
+                                @click="deleteRegistrationById(scope.row.id)">删除记录</el-button>
                         </div>
                         <div v-else>
-                            <el-button type="warning" size="small"
+                            <el-button v-if="scope.row.registrationStatus !== '审核中'" type="warning" size="small"
                                 @click="deleteRegistrationById(scope.row.id)">删除</el-button>
+                            <el-button v-else-if="scope.row.registrationStatus === '成功'" type="warning" size="small"
+                                class="button-disabled">删除</el-button>
+                            <el-button v-else type="warning" size="small" class="button-disabled">删除</el-button>
                         </div>
 
                     </template>
                 </el-table-column>
             </el-table>
         </div>
+
+        <el-dialog title="审核运动员参赛申请" :visible.sync="dialogRegistrationForm">
+            <el-form :model="registrationForm" ref="registrationForm" label-width="140px" class="demo-registrationForm">
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="参加项目名">
+                            <el-input v-model="registrationForm.itemName" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="参加活动名">
+                            <el-input v-model="registrationForm.eventName" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="已参与人数">
+                            <el-input v-model="registrationForm.num" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="最大参与人数">
+                            <el-input v-model="registrationForm.maxNum" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="申请限制">
+                            <el-input v-model="registrationForm.limitation" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="申请项目所属年级">
+                            <el-input v-model="registrationForm.grade" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="申请运动员姓名">
+                            <el-input v-model="registrationForm.name" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="申请运动员年龄">
+                            <el-input v-model="registrationForm.age" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+
+                        <el-form-item label="申请运动员性别" prop="gender">
+                            <el-radio v-model="registrationForm.gender" label="男" disabled>男</el-radio>
+                            <el-radio v-model="registrationForm.gender" label="女" disabled>女</el-radio>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="申请运动员年级">
+                            <el-input v-model="registrationForm.athleteGrade" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+
+
+                <el-form-item label="申请运动员电话号码">
+                    <el-input v-model="registrationForm.contact" disabled></el-input>
+                </el-form-item>
+
+                <el-form-item label="申请时间" prop="contact">
+                    <el-input v-model="registrationForm.applyTime" disabled></el-input>
+                </el-form-item>
+
+
+                <el-form-item>
+                    <el-button type="primary" @click="attendProjectById(registrationForm.id)">同意参加项目</el-button>
+                    <el-button @click="refuseProjectById(registrationForm.id)">驳回申请</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
         <!-- 分页按钮 -->
         <div class="block">
             <!-- <span class="demonstration">完整功能</span> -->
@@ -67,6 +151,7 @@
 import { RegistrationList } from '@/api'
 import { deleteRegistration } from '@/api'
 
+import { selectApply } from '@/api'
 import { attendProject } from '@/api'
 import { refuseProject } from '@/api'
 
@@ -75,6 +160,7 @@ export default {
         return {
             dialogUpdateForm: false,
             dialogFormVisible: false,
+            dialogRegistrationForm: false,
             registrationConfig: {
                 name: '',
                 status: '',
@@ -102,6 +188,9 @@ export default {
                 registrationStatus: "审核中",
                 registrationTime: "无网络数据",
             }],
+            registrationForm: {
+
+            }
         }
     },
     methods: {
@@ -119,6 +208,26 @@ export default {
         listSelectCondition() {
 
             this.selectPageDate(this.registrationConfig)
+        },
+        //查看申请信息
+        examine(id) {
+            console.log("查看申请信息的id", id);
+            selectApply(id).then((data) => {
+
+                if (data.data.code === 1) {
+                    console.log("查看申请信息", data.data.data);
+                    this.registrationForm=data.data.data
+                    this.registrationForm.applyTime=this.DateToString(this.registrationForm.applyTime)
+                    
+                    this.dialogRegistrationForm = true;
+                } else {
+                    this.$notify.error({
+                        title: '查询失败,请刷新重试!!!',
+                        message: data.data.msg
+                    });
+                }
+            })
+
         },
         handleSizeChange(val) {
             console.log(`每页 ${val} 条`);
@@ -166,7 +275,7 @@ export default {
                 if (data.data.code === 1) {
                     this.$notify({
                         title: '成功',
-                        message: '删除成功',
+                        message: data.data.msg,
                         type: 'success'
                     });
                     this.listSelectCondition()
@@ -188,6 +297,7 @@ export default {
                         message: data.data.msg,
                         type: 'success'
                     });
+                    this.dialogRegistrationForm = false;
                     this.listSelectCondition()
                 } else {
                     this.$notify.error({
@@ -198,8 +308,8 @@ export default {
             })
         },
         //拒绝申请
-        refuseProjectById(id){
-            refuseProject(id).then((data) =>{
+        refuseProjectById(id) {
+            refuseProject(id).then((data) => {
                 console.log("操作结果", data);
                 if (data.data.code === 1) {
                     this.$notify({
@@ -207,6 +317,7 @@ export default {
                         message: '拒绝成功',
                         type: 'success'
                     });
+                    this.dialogRegistrationForm = false;
                     this.listSelectCondition()
                 } else {
                     this.$notify.error({

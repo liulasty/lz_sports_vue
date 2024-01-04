@@ -93,7 +93,7 @@
             </el-form>
         </el-dialog>
 
-
+        <!-- 表格 -->
         <el-table :data="tableData" border style="width: 100%">
             <el-table-column prop="eventName" label="活动名称" width="150">
             </el-table-column>

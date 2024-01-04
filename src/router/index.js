@@ -11,6 +11,7 @@ import Athlete from '../views/Athlete.vue'
 import EventItem from '../views/EventItem.vue'
 import AthleteApplication from '../views/AthleteApplication.vue'
 import User from '../views/User.vue'
+import myInfo from '../views/myInfo.vue'
 
 Vue.use(VueRouter)
 const routes = [
@@ -36,6 +37,7 @@ const routes = [
             { path: '/athlete',name:'athlete', component: Athlete },
             { path: '/eventItem',name:'eventItem', component: EventItem },
             { path: '/athleteApplication',name:'athleteApplication', component: AthleteApplication },
+            { path: '/myInfo',name:'myInfo',component: myInfo},
             { path: '/page1',name:'page1',component: pageOne},
             { path: '/page2',name:'page2',component: pageTwo},
         ]

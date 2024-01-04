@@ -83,7 +83,7 @@
 import { userList } from "@/api"
 import { deleteUser } from "@/api"
 import { examineSports } from "@/api"
-import { selectApply } from "@/api"
+import { getAthleteApply } from "@/api"
 import { refusePlayer } from '@/api'
 
 export default {
@@ -155,7 +155,7 @@ export default {
             this.dialogUpdateForm = true;
             // console.log("允许该用户成为运动员?", row);
 
-            selectApply(row.id).then((data) => {
+            getAthleteApply(row.id).then((data) => {
                 console.log("审核响应", data);
                 this.userForm.name = data.data.data.name
                 this.userForm.gender = data.data.data.gender

@@ -24,21 +24,30 @@
         <!-- 项目列表表格 -->
         <div class="projectTable">
             <el-table :data="tableData" border style="width: 100%">
-                <el-table-column fixed prop="start" label="开始日期" width="200">
+                <el-table-column fixed prop="start" label="报名开始日期" width="170">
                 </el-table-column>
                 <el-table-column prop="name" label="项目名称" width="138">
                 </el-table-column>
-                <el-table-column prop="eventName" label="活动名称" width="150">
+                <el-table-column prop="eventName" label="活动名称" width="100">
                 </el-table-column>
-                <el-table-column prop="state" label="报名方式" width="100">
+
+                <el-table-column prop="end" label="报名截止日期" width="170">
                 </el-table-column>
-                <el-table-column prop="end" label="截止日期" width="200">
+                <el-table-column prop="state" label="报名方式" width="80">
                 </el-table-column>
-                <el-table-column prop="limitation" label="限制条件" width="150">
+                <el-table-column prop="projectStart" label="比赛开始时间" width="175">
                 </el-table-column>
-                <el-table-column prop="grade" label="参加年级" width="150">
+                <el-table-column prop="projectEnd" label="比赛结束时间" width="175">
                 </el-table-column>
-                <el-table-column label="操作" width="190">
+                <el-table-column prop="limitation" label="限制条件" width="80">
+                </el-table-column>
+                <el-table-column prop="grade" label="参加年级" width="80">
+                </el-table-column>
+                <el-table-column prop="maxAttendance" label="最大参加人数" width="120">
+                </el-table-column>
+                <el-table-column prop="attendance" label="已参加人数" width="120">
+                </el-table-column>
+                <el-table-column label="操作" width="190" fixed="right">
                     <template slot-scope="scope">
                         <div v-if="applyPlayer()">
                             <el-button @click="editProjectById(scope.row)" type="primary" size="small">编辑</el-button>
@@ -52,7 +61,7 @@
                             <el-button v-else type="warning" disabled>{{ scope.row.isJoin }} </el-button>
                         </div>
                         <div v-else>
-                            <el-button type="success" size="small" disabled>有限制,无法参加</el-button>
+                            <el-button type="success" size="small" disabled>{{ cannotReason }}</el-button>
                         </div>
                     </template>
 
@@ -100,6 +109,9 @@
                         <el-radio label="九年级" name="gradeUpdate"></el-radio>
                     </el-radio-group>
                 </el-form-item>
+                <el-form-item label="最大参赛人数" prop="maxAttendance">
+                    <el-input-number v-model="projectForm.maxAttendance" :min="5" :max="50"></el-input-number>
+                </el-form-item>
                 <el-form-item label="项目照片" prop="uploadImg">
                     <ImageUploader ref="imageSet2" />
                 </el-form-item>
@@ -129,6 +141,14 @@
                         <el-radio label="女" name="limitation"></el-radio>
                         <el-radio label="不限" name="limitation"></el-radio>
                     </el-radio-group>
+                </el-form-item>
+                <el-form-item label="比赛时间" required>
+                    <el-date-picker v-model="projectForm.date" type="datetimerange" range-separator="至"
+                        start-placeholder="开始日期" end-placeholder="结束日期">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="最大参赛人数" prop="maxAttendance">
+                    <el-input-number v-model="projectForm.maxAttendance" :min="5" :max="50"></el-input-number>
                 </el-form-item>
                 <el-form-item label="参赛年级" prop="grade">
                     <el-radio-group v-model="projectForm.grade">
@@ -165,6 +185,7 @@ import { editProject } from '@/api'
 import { deleteProject } from '@/api'
 import { joinProject } from '@/api'
 import { selectApply } from '@/api'
+import { getAthlete } from '@/api'
 
 
 export default {
@@ -196,7 +217,8 @@ export default {
                 name: '',
                 event: '',
                 limitation: '',
-                grade: ''
+                grade: '',
+                maxAttendance: 10
             },
             rules: {
                 name: [
@@ -209,7 +231,8 @@ export default {
             },
             playerInfo: {
 
-            }
+            },
+            cannotReason: '未知',
         }
     },
     methods: {
@@ -217,6 +240,7 @@ export default {
         listSelectCondition() {
             // 初始化 tableData
             this.tableData = [];
+            console.log("查询条件", this.projectConfig)
             projectList(this.projectConfig).then((data) => {
                 // console.log("查询到的数据", data.data)
                 const records = data.data.data.records;
@@ -224,7 +248,8 @@ export default {
                 records.forEach(element => {
                     element.start = this.DateToString(element.start)
                     element.end = this.DateToString(element.end)
-
+                    element.projectStart = this.DateToString(element.projectStart)
+                    element.projectEnd = this.DateToString(element.projectEnd)
                     this.tableData.push(element);
                 });
             })
@@ -267,29 +292,35 @@ export default {
             const start = this.parseDateFromString(date.start)
             const end = this.parseDateFromString(date.end)
             if (start > NOW || end < NOW) {
-                console.log("时间未在范围内")
+                // console.log("时间未在范围内",start,end)
+                this.cannotReason = '未在报名时间范围内'
                 return false
             }
 
             if (this.playerInfo.grade !== date.grade) {
-                console.log("年级不符合")
+                // console.log("年级不符合",this.playerInfo.grade,date.grade)
+                this.cannotReason = '未在报名年级范围内'
                 return false
             }
 
             if (date.limitation != '不限') {
                 if (date.limitation !== this.playerInfo.gender) {
-                    console.log("性别不符合")
+                    this.cannotReason = '未在报名性别范围内'
                     return false
                 }
             }
+            this.cannotReason = '符合'
             return true
         },
         //获取运动员信息
         getPlayerInfo() {
-            selectApply(this.$store.state.userInfo.userId).then((data) => {
-                // console.log("运动员信息",data.data.data);
-                this.playerInfo = data.data.data;
-            })
+            if (this.$store.state.userInfo.type !== '工作人员') {
+                getAthlete(this.$store.state.userInfo.userId).then((data) => {
+                    // console.log("运动员信息",data.data.data);
+                    this.playerInfo = data.data.data;
+                })
+            }
+
         },
         //分页按钮
         handleSizeChange(val) {
@@ -314,7 +345,7 @@ export default {
                 })
                 .catch(_ => { });
         },
-        //提交表单
+        //提交添加表单
         submitForm(formName) {
             this.$refs[formName].validate((valid) => {
                 if (valid) {
@@ -344,6 +375,7 @@ export default {
                     }
                     this.dialogFormVisible = false;
                     this.listSelectCondition()
+                    this.resetForm(formName)
                 })
 
             });
@@ -351,7 +383,6 @@ export default {
         //清空表单
         resetForm(formName) {
             this.$refs[formName].resetFields();
-            this.$refs.imageSet1.clearImgSet();
         },
         //运动员参加项目
         attendProjectById(row) {
@@ -365,21 +396,29 @@ export default {
                 const joinData = { eventId: row.eventId, projectId: row.projectId, userId: this.$store.state.userInfo.userId }
                 joinProject(joinData).then((data) => {
                     console.log("参加项目的响应结果", data);
+                    if (data.data.code === 1) {
+                        this.$notify({
+                            title: '参加项目',
+                            message: data.data.msg,
+                            type: 'success'
+                        });
+                        this.listSelectCondition()
+                    } else {
+                        this.$notify.error({
+                            title: '参加项目',
+                            message: data.data.msg
+                        });
+                        this.listSelectCondition()
+                    }
 
                 })
-
-                this.$message({
-                    type: 'success',
-                    message: '成功参加!'
-                });
-                this.listSelectCondition()
             }).catch(() => {
                 this.$message({
                     type: 'info',
                     message: '已取消参加'
                 });
             });
-            
+
 
         },
         //删除
@@ -412,7 +451,7 @@ export default {
 
             })
         },
-        
+
         //编辑项目
         editProjectById(row) {
             console.log("编辑", row)
