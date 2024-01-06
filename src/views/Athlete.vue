@@ -39,14 +39,13 @@
                             <el-button v-if="scope.row.registrationStatus === '审核中'" @click="examine(scope.row.id)"
                                 type="primary" size="small">查看申请</el-button>
                             <el-button v-else type="warning" size="small"
-                                @click="deleteRegistrationById(scope.row.id)">删除记录</el-button>
+                                @click="deleteRegistrationById(scope.row.id)">删除申请记录</el-button>
                         </div>
                         <div v-else>
-                            <el-button v-if="scope.row.registrationStatus !== '审核中'" type="warning" size="small"
-                                @click="deleteRegistrationById(scope.row.id)">删除</el-button>
-                            <el-button v-else-if="scope.row.registrationStatus === '成功'" type="warning" size="small"
-                                class="button-disabled">删除</el-button>
-                            <el-button v-else type="warning" size="small" class="button-disabled">删除</el-button>
+                            <el-button v-if="scope.row.registrationStatus === '审核中'" type="warning" size="small"
+                                @click="cancelRegistration(scope.row.id)">取消报名</el-button>
+                            <el-button v-else-if="scope.row.registrationStatus === '通过'" type="success" @click="deleteRegistrationById(scope.row.id)" size="small">删除参加记录</el-button>
+                            <el-button v-else type="info" size="small" @click="deleteRegistrationById(scope.row.id)">删除申请记录</el-button>
                         </div>
 
                     </template>
@@ -267,6 +266,25 @@ export default {
             const formattedDate = `${year}年${month}月${day}日${hours}时${minutes}分`;
 
             return formattedDate
+        },
+        //取消申请记录
+        cancelRegistration(id){
+            deleteRegistration(id).then((data) => {
+                console.log("删除结果", data);
+                if (data.data.code === 1) {
+                    this.$notify({
+                        title: '成功',
+                        message: data.data.msg,
+                        type: 'success'
+                    });
+                    this.listSelectCondition()
+                } else {
+                    this.$notify.error({
+                        title: '失败',
+                        message: data.data.msg
+                    });
+                }
+            })
         },
         //删除记录
         deleteRegistrationById(id) {

@@ -87,6 +87,11 @@ export const getAthlete = (id) => {
     return http.get('/athlete/'+id)
 }
 
+export const updateAthlete = (data) => {
+    console.log("修改运动员信息,运动员信息",data)
+    return http.put('/athlete/'+data.athleteId,data)
+}
+
 export const examineSports = (id) => {
     console.log("运动员审核通过", id);
     return http.get('/user/athlete/' + id)
@@ -178,6 +183,11 @@ export const RegistrationList = (data) => {
     return http.get("/registration/page", {
         params: data,
     })
+}
+
+export const getAthleteRegistrationTotal= (id) =>{
+    console.log("查询运动员申请参赛记录总数,运动员编号",id)
+    return http.get("/registration/athlete/"+id)
 }
 
 export const deleteRegistration = (id) => {

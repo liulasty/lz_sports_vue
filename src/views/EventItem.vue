@@ -16,7 +16,7 @@
                 </el-select>
                 <el-date-picker size="small" v-model="projectConfig.date" type="date" placeholder="日期之后" clearable>
                 </el-date-picker>
-                <el-button class="selectButton" type="primary" size="small" @click="listSelectCondition">查询</el-button>
+                <el-button class="selectButton" type="primary" size="small" @click="searchRecords">查询</el-button>
             </div>
 
 
@@ -45,7 +45,7 @@
                 </el-table-column>
                 <el-table-column prop="maxAttendance" label="最大参加人数" width="120">
                 </el-table-column>
-                <el-table-column prop="attendance" label="已参加人数" width="120">
+                <el-table-column prop="attendance" label="已申请参加人数" width="120">
                 </el-table-column>
                 <el-table-column label="操作" width="190" fixed="right">
                     <template slot-scope="scope">
@@ -59,6 +59,7 @@
                                 {{ scope.row.isJoin }}
                             </el-button>
                             <el-button v-else type="warning" disabled>{{ scope.row.isJoin }} </el-button>
+                            
                         </div>
                         <div v-else>
                             <el-button type="success" size="small" disabled>{{ cannotReason }}</el-button>
@@ -236,6 +237,11 @@ export default {
         }
     },
     methods: {
+        //搜索记录
+        searchRecords(){
+            this.projectConfig.currentPage=1
+            this.listSelectCondition()
+        },
         //查询分页
         listSelectCondition() {
             // 初始化 tableData
@@ -388,10 +394,13 @@ export default {
         attendProjectById(row) {
             // console.log("参加", row)
 
-            this.$confirm('活动项目:' + row.name + "——" + row.grade + "——" + row.eventName, '参加项目', {
-                confirmButtonText: '确定',
+            this.$confirm('活动项目:' + row.name + "——" + row.grade + "——" + row.eventName
+            +"<br> 报名截止时间——>"+row.end
+            +"<br>若成功报名,超过报名截止时间或者通过审核后则无法取消报名，请确认是否继续申请", '参加项目', {
+                confirmButtonText: '确认参加',
                 cancelButtonText: '取消',
-                type: 'success'
+                dangerouslyUseHTMLString: true,
+                type: 'info'
             }).then(() => {
                 const joinData = { eventId: row.eventId, projectId: row.projectId, userId: this.$store.state.userInfo.userId }
                 joinProject(joinData).then((data) => {
@@ -511,7 +520,7 @@ export default {
                 // console.log("label", this.Eligibility)
             }
         })
-        this.listSelectCondition(this.userConfig)
+        this.listSelectCondition()
         this.getPlayerInfo()
     },
 }

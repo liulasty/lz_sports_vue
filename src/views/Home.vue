@@ -16,7 +16,7 @@
             </el-card>
             <el-card style="margin-top: 18PX;height: 310PX;">
                 <el-table :data="tableData" style="width: 100%" height="250">
-                    <el-table-column fixed prop="date" label="活动时间" width="190">
+                    <el-table-column fixed prop="date" label="活动报名开始时间" width="190">
                     </el-table-column>
                     <el-table-column v-for="(val, key) in tableLabel" :key="key" :prop="key" :label="val" width="100" />
                 </el-table>
@@ -71,7 +71,7 @@ export default {
                 date: '2016-05-03',
                 name: '活动名称',
                 type: '参赛资格',
-                fee: '菲佣'
+                fee: '0'
             },],
             countData: [
                 {
