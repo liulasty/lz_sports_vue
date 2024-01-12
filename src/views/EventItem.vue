@@ -1,3 +1,4 @@
+<!-- eslint-disable no-unused-vars -->
 <template>
     <div class="projectItem">
         <div class="project_top">
@@ -385,11 +386,14 @@ export default {
         //表单关闭
         handleClose(done) {
             this.$confirm('确认关闭？')
-                .then(_ => {
+                .then(date => {
+                    console.log(date)
                     done();
 
                 })
-                .catch(_ => { });
+                .catch(error => { 
+                    console.log(error)
+                });
         },
         //提交添加表单
         submitForm(formName) {
