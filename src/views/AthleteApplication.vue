@@ -2,6 +2,7 @@
     <div>
         <div v-if="athleteState">
             <el-empty v-if="athleteAdd === '申请中'" description="申请中,请等待"></el-empty>
+            <el-empty v-else-if="athleteAdd === '成功'" description="申请通过,请重新登录"></el-empty>
             <el-empty v-else description="管理员拒绝了您的拒绝申请">
                 <el-button type="primary" @click="reApply">重新申请</el-button>
             </el-empty>

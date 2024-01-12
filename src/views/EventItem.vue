@@ -23,46 +23,50 @@
         </div>
         <!-- 项目列表表格 -->
         <div class="projectTable">
-            <el-table :data="tableData" border style="width: 100%">
-                <el-table-column fixed prop="start" label="报名开始日期" width="170">
+            <el-table :data="tableData"  border style="width: 100%">
+                <el-table-column fixed align="center" prop="range" label="报名的时间范围" width="370">
                 </el-table-column>
-                <el-table-column prop="name" label="项目名称" width="138">
+                <el-table-column prop="name" label="项目名称" width="100">
                 </el-table-column>
-                <el-table-column prop="eventName" label="活动名称" width="100">
-                </el-table-column>
-
-                <el-table-column prop="end" label="报名截止日期" width="170">
-                </el-table-column>
-                <el-table-column prop="state" label="报名方式" width="80">
-                </el-table-column>
-                <el-table-column prop="projectStart" label="比赛开始时间" width="175">
-                </el-table-column>
-                <el-table-column prop="projectEnd" label="比赛结束时间" width="175">
+                <el-table-column prop="rate" label="报名比率" width="80">
                 </el-table-column>
                 <el-table-column prop="limitation" label="限制条件" width="80">
                 </el-table-column>
                 <el-table-column prop="grade" label="参加年级" width="80">
                 </el-table-column>
-                <el-table-column prop="maxAttendance" label="最大参加人数" width="120">
+                <el-table-column prop="projectStart" label="比赛开始时间" width="185">
+                </el-table-column>
+                <!-- <el-table-column prop="maxAttendance" label="最大参加人数" width="120">
                 </el-table-column>
                 <el-table-column prop="attendance" label="已申请参加人数" width="120">
+                </el-table-column> -->
+                <el-table-column prop="eventName" label="运动会名称" width="100">
                 </el-table-column>
-                <el-table-column label="操作" width="190" fixed="right">
+                <el-table-column prop="state" label="报名方式" width="80">
+                </el-table-column>
+                <!-- <el-table-column prop="start" label="报名开始日期" width="170">
+                </el-table-column>
+                <el-table-column prop="end" label="报名截止日期" width="170">
+                </el-table-column> -->
+                
+                <!-- <el-table-column prop="projectEnd" label="比赛结束时间" width="185">
+                </el-table-column> -->
+                <el-table-column label="操作" width="210" fixed="right">
                     <template slot-scope="scope">
                         <div v-if="applyPlayer()">
-                            <el-button @click="editProjectById(scope.row)" type="primary" size="small">编辑</el-button>
-                            <el-button @click="deleteProjectById(scope.row)" type="warning" size="small">删除</el-button>
+                            <el-button @click="editProjectById(scope.row)" type="primary" size="medium">编辑</el-button>
+                            <el-button @click="deleteProjectById(scope.row)" type="warning" size="medium">删除</el-button>
                         </div>
                         <div v-else-if="isEligibility(scope.row)">
                             <el-button v-if="scope.row.isJoin === '未参加'" @click="attendProjectById(scope.row)"
-                                type="primary" size="small">
+                                type="primary" size="medium">
                                 {{ scope.row.isJoin }}
                             </el-button>
-                            <el-button v-else type="warning" disabled>{{ scope.row.isJoin }} </el-button>
-                            
+                            <el-button v-else type="warning" size="medium" disabled>{{ scope.row.isJoin }} </el-button>
+
                         </div>
                         <div v-else>
-                            <el-button type="success" size="small" disabled>{{ cannotReason }}</el-button>
+                            <el-button type="info" size="medium" disabled>{{ cannotReason }}</el-button>
                         </div>
                     </template>
 
@@ -79,7 +83,7 @@
         </div>
 
         <!-- 修改弹窗 -->
-        <el-dialog title="修改活动" :visible.sync="dialogUpdateForm" :before-close="handleClose">
+        <el-dialog title="修改项目" :visible.sync="dialogUpdateForm" :before-close="handleClose">
             <el-form :model="projectForm" :rules="rules" ref="projectForm" label-width="100px" class="demo-ruleForm">
                 <el-form-item label="项目名称" prop="name">
                     <el-input v-model="projectForm.name"></el-input>
@@ -185,7 +189,6 @@ import { selectProject } from '@/api'
 import { editProject } from '@/api'
 import { deleteProject } from '@/api'
 import { joinProject } from '@/api'
-import { selectApply } from '@/api'
 import { getAthlete } from '@/api'
 
 
@@ -212,7 +215,9 @@ export default {
                 name: '王小虎',
                 eventName: '工作人员',
                 eventId: '',
-                state: '未激活'
+                state: '未激活',
+                range: '',
+                rate: '0/20',
             }],
             projectForm: {
                 name: '',
@@ -238,8 +243,8 @@ export default {
     },
     methods: {
         //搜索记录
-        searchRecords(){
-            this.projectConfig.currentPage=1
+        searchRecords() {
+            this.projectConfig.currentPage = 1
             this.listSelectCondition()
         },
         //查询分页
@@ -254,11 +259,38 @@ export default {
                 records.forEach(element => {
                     element.start = this.DateToString(element.start)
                     element.end = this.DateToString(element.end)
-                    element.projectStart = this.DateToString(element.projectStart)
+                    element.range = this.formatDateTime(element.start, element.end)
+                    element.projectStart = this.modifyDateTime(element.projectStart)
                     element.projectEnd = this.DateToString(element.projectEnd)
+                    element.rate = this.createFraction(element.attendance, element.maxAttendance)
                     this.tableData.push(element);
                 });
             })
+        },
+        //创建参赛率
+        createFraction(num1, num2) {
+            var numerator = Math.max(0, Math.min(num1, num2)); // 确保分子最小为0且最大不超过分母
+            return numerator + "/" + num2;
+        },
+        //报名的时间范围
+        formatDateTime(startDate, endDate) {
+
+            return startDate + "——" + endDate;
+        },
+        //比赛日期
+        modifyDateTime(dateTimeString) {
+            var date = new Date(dateTimeString);
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1; // 月份从0开始，所以需要加1
+            var day = date.getDate();
+            var hour = date.getHours();
+
+            // 修改为下午
+            if (hour >= 12) {
+                return year + "年" + month + "月" + day + "日下午";
+            } else {
+                return year + "年" + month + "月" + day + "日上午";
+            }
         },
 
         //时间格式转换
@@ -312,6 +344,14 @@ export default {
             if (date.limitation != '不限') {
                 if (date.limitation !== this.playerInfo.gender) {
                     this.cannotReason = '未在报名性别范围内'
+                    return false
+                }
+            }
+
+            if(date.attendance >= date.maxAttendance){
+                if (date.attendance >= date.maxAttendance) {
+                    // console.log("年级不符合",this.playerInfo.grade,date.grade)
+                    this.cannotReason = '参与人数已达最多'
                     return false
                 }
             }
@@ -395,8 +435,8 @@ export default {
             // console.log("参加", row)
 
             this.$confirm('活动项目:' + row.name + "——" + row.grade + "——" + row.eventName
-            +"<br> 报名截止时间——>"+row.end
-            +"<br>若成功报名,超过报名截止时间或者通过审核后则无法取消报名，请确认是否继续申请", '参加项目', {
+                + "<br> 报名截止时间——>" + row.end
+                + "<br>若成功报名,超过报名截止时间或者通过审核后则无法取消报名，请确认是否继续申请", '参加项目', {
                 confirmButtonText: '确认参加',
                 cancelButtonText: '取消',
                 dangerouslyUseHTMLString: true,
@@ -465,6 +505,7 @@ export default {
         editProjectById(row) {
             console.log("编辑", row)
             this.dialogUpdateForm = true;
+            
             selectProject(row.projectId).then((data) => {
                 console.log(data.data.data)
 

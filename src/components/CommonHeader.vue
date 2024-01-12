@@ -18,8 +18,8 @@
           <img class="userIcon" src="../assets/logo.png" alt="用户">
         </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>
-            选项一
+          <el-dropdown-item @click.native="dialogAvatarVisible = true">
+            修改头像
           </el-dropdown-item>
           <el-dropdown-item>
             选项二
@@ -29,7 +29,14 @@
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-
+      <el-dialog title="修改头像" :visible.sync="dialogAvatarVisible">
+        <el-upload class="avatar-uploader" action="http://localhost:80/sports/img/uploadAvatar" :show-file-list="false"
+          :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" 
+          :headers="{'Jwt': this.token}">
+          <img v-if="imageUrl" :src="imageUrl" class="avatar">
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </el-upload>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -43,6 +50,14 @@ export default {
   props: {
     msg: String
   },
+  data() {
+    return {
+      dialogAvatarVisible: false,
+      imageUrl: '',
+      token:localStorage.getItem('jwtToken')
+    }
+
+  },
   watch: {
     '$route'(to, from) {
       // 在路由变化时触发，你可以在这里更新面包屑的样式
@@ -51,6 +66,23 @@ export default {
     }
   },
   methods: {
+    handleAvatarSuccess(res, file) {
+      this.imageUrl = URL.createObjectURL(file.raw);
+      console.log(res)
+      this.$message.error(res.msg);
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg';
+      const isLt2M = file.size / 1024 / 1024 < 2;
+
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!');
+      }
+      return isJPG && isLt2M;
+    },
     generateUniqueId(item) {
       // 生成一个基于路由项的唯一 ID，可以根据需要自定义生成逻辑
       return `breadcrumb-item-${item.path}`;
@@ -178,5 +210,32 @@ export default {
       }
     }
   }
+}
+
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+}
+
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
 }
 </style>

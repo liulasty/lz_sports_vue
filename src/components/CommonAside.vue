@@ -73,7 +73,7 @@ export default {
                 {
                     path: '/event',
                     name: 'event',
-                    label: '活动管理',
+                    label: '运动会管理',
                     icon: 's-custom',
                     url: 'eventMange/eventMange'
                 },
@@ -164,7 +164,7 @@ export default {
                     {
                         path: '/event',
                         name: 'event',
-                        label: '活动管理',
+                        label: '运动会管理',
                         icon: 's-custom',
                         url: 'eventMange/eventMange'
                     },
