@@ -101,7 +101,7 @@ export default {
                             // 存储JWT令牌
                             localStorage.setItem('jwtToken', data.data.data.token);
                             localStorage.setItem('sportsUser',  JSON.stringify(data.data.data));
-
+                            
                             this.$router.push('/main')
                             
                             this.$message({

@@ -5,7 +5,7 @@
                 <div class="userImg">
                     <img src="../assets/logo.png" alt="">
                     <div class="user-info">
-                        <p class="username">{{ userInfo.username }}</p>
+                        <p class="username">{{ userInfo.userName }}</p>
                         <p class="access">{{ userInfo.type }}</p>
                     </div>
                 </div>
@@ -117,17 +117,18 @@ export default {
                 fee: '费用'
             },
             userInfo: {
-                username: this.$store.state.userInfo.username,
-                img: this.$store.state.userInfo.img,
-                type: this.$store.state.userInfo.type,
+                userName: '',
+                img: '',
+                type: '',
             }
         }
     },
     mounted() {
-        this.userInfo.username = this.$store.state.userInfo.username;
-        this.userInfo.img = this.$store.state.userInfo.img;
-        this.userInfo.type = this.$store.state.userInfo.type;
 
+        const sportsUser = localStorage.getItem('sportsUser')
+        const parsedUser = JSON.parse(sportsUser);
+        this.userInfo = parsedUser
+        console.log("userInfo", this.userInfo)
 
         getData().then((data) => {
             const dataAll = data.data.data
@@ -139,7 +140,7 @@ export default {
             this.countData[3].value = dataAll.newAthletesAddedMonth;
             this.countData[4].value = dataAll.newActivitiesAddedMonth;
             this.countData[5].value = dataAll.newProjectsAddedMonth;
-            
+
 
             this.tableData.forEach(item => {
                 item.date = this.DateToString(item.date)
@@ -340,7 +341,7 @@ export default {
                         center: ['50%', '80%'],
                         // 调整起始角度
                         startAngle: 180,
-                        
+
                         // formatter(param) { return param.name + ' (' + param.percent * 2 + '%)'; } 是用来格式化标签内容的函数。
                         // 在这里，param 是传入的参数对象，包含了标签所需的数据。通过这个函数，可以自定义标签的显示内容。
                         // 在这个例子中，标签的内容包括了数据项的名称和一个经过修改的百分比。这里的 param.percent * 2 对百分比进行了修改，将其乘以 2。

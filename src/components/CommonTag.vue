@@ -27,7 +27,7 @@ export default{
             })
     },
     mounted() {
-        console.log(this.$route.name,this.tags)
+        console.log('面包屑',this.$route.name,this.tags)
     },
     methods:{
         // 调用了一个名为mapMutations的函数，并传入了一个参数['closeTag']

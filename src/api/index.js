@@ -55,6 +55,11 @@ export const logout = () => {
     return http.delete('user/logout')
 }
 
+export const checkLogin = () =>{
+    console.log("检查jwt")
+    return http.get('user/checkLogin')
+}
+
 export const register = (userInfo) => {
     console.log("注册参数", userInfo)
     return http.post('/user/register', userInfo)

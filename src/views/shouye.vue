@@ -6,13 +6,15 @@
                 <button class="btn" @click="ToLogin">
                     去登录
                 </button>
-                
+
             </div>
 
         </div>
     </div>
 </template>
 <script>
+import {checkLogin} from '@/api'
+
 export default {
     data() {
         return {
@@ -20,13 +22,22 @@ export default {
         };
     },
     mounted() {
-        
+
     },
     methods: {
         ToLogin() {
+            checkLogin().then((data)=> {
+                console.log("检查登录",data)
+                if(data.data.status == 200){
+                    if(data.data.message == '令牌校验失败'){
+                        this.$router.push('/login')
+                    }
+                    
+                }
+            })
+
             
-            this.$router.push('/login')
-        }
+        },
     }
 }
 </script>

@@ -20,27 +20,24 @@ router.beforeEach((to, from, next) => {
 
   // 获取JWT令牌
   const token = localStorage.getItem('jwtToken');
-  const sportsUser = localStorage.getItem('sportsUser')
-  if(sportsUser){
-    const User = JSON.parse(sportsUser)
-    store.state.userInfo.username=User.userName;
-    store.state.userInfo.userId=User.id;
-    store.state.userInfo.img=User.img;
-    store.state.userInfo.type=User.type
-
+  console.log("JWT",token)
+  if(token){//token存在
+    if(to.path !== '/login' && to.path !== '/register'){
+      
+      next();
+    }else{
+      
+      next('/home');
+    }
     
-  }
-  if (!token && to.path !== '/login' && to.path !== '/register' && to.path !== '/' ) {//token不存在
-    next('/login')
-  } else if (token && to.name === 'login') {//token存在
-    
-    if(from.name==  'home'){
+  }else{//token不存在
+    if (to.path !== '/login' && to.path !== '/register' & to.path !== '/') {
+      
+      next('/login')
+    }else{
+      
       next()
     }
-    next({ name: 'home' })
-  } else {
-    next();
-    
   }
 })
 

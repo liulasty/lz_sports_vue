@@ -24,7 +24,7 @@
         </div>
         <!-- 项目列表表格 -->
         <div class="projectTable">
-            <el-table :data="tableData"  border style="width: 100%">
+            <el-table :data="tableData" border style="width: 100%">
                 <el-table-column fixed align="center" prop="range" label="报名的时间范围" width="370">
                 </el-table-column>
                 <el-table-column prop="name" label="项目名称" width="100">
@@ -49,7 +49,7 @@
                 </el-table-column>
                 <el-table-column prop="end" label="报名截止日期" width="170">
                 </el-table-column> -->
-                
+
                 <!-- <el-table-column prop="projectEnd" label="比赛结束时间" width="185">
                 </el-table-column> -->
                 <el-table-column label="操作" width="210" fixed="right">
@@ -349,7 +349,7 @@ export default {
                 }
             }
 
-            if(date.attendance >= date.maxAttendance){
+            if (date.attendance >= date.maxAttendance) {
                 if (date.attendance >= date.maxAttendance) {
                     // console.log("年级不符合",this.playerInfo.grade,date.grade)
                     this.cannotReason = '参与人数已达最多'
@@ -385,13 +385,16 @@ export default {
         },
         //表单关闭
         handleClose(done) {
-            this.$confirm('确认关闭？')
-                .then(date => {
+            this.$confirm('确认关闭？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(date => {
                     console.log(date)
                     done();
 
                 })
-                .catch(error => { 
+                .catch(error => {
                     console.log(error)
                 });
         },
@@ -509,7 +512,7 @@ export default {
         editProjectById(row) {
             console.log("编辑", row)
             this.dialogUpdateForm = true;
-            
+
             selectProject(row.projectId).then((data) => {
                 console.log(data.data.data)
 
