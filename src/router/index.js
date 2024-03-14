@@ -5,6 +5,7 @@ import Event from '../views/Event.vue'
 import Main from '../views/Main.vue'
 import pageOne from '../views/PageOne.vue'
 import pageTwo from '../views/PageTwo.vue'
+import pageThree from '../views/pageThree'
 import Login from '../views/login.vue'
 import Sports from '../views/shouye.vue'
 import Athlete from '../views/Athlete.vue'
@@ -40,6 +41,7 @@ const routes = [
             { path: '/myInfo',name:'myInfo',component: myInfo},
             { path: '/page1',name:'page1',component: pageOne},
             { path: '/page2',name:'page2',component: pageTwo},
+            { path: '/page3',name:'page3',component: pageThree},
         ]
     },
     {

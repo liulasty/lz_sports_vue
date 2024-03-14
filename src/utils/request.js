@@ -15,7 +15,7 @@ http.interceptors.request.use(function (config) {
   // console.log("token", token)
   // 在请求头中添加自定义内容
   config.headers['jwt'] = token;
-  
+
 
   return config;
 }, function (error) {
@@ -27,9 +27,10 @@ http.interceptors.request.use(function (config) {
 http.interceptors.response.use(function (response) {
   // 2xx 范围内的状态码都会触发该函数。
   // 对响应数据做点什么
-  
-  if(response.data.message === '令牌校验失败'){
-    console.log("删除JWT令牌",response)
+
+  if (response.data.message === '令牌校验失败') {
+    ;
+    console.log("删除JWT令牌", response)
     // 删除JWT令牌
     localStorage.removeItem('jwtToken');
     localStorage.removeItem('sportsUser');
@@ -37,7 +38,7 @@ http.interceptors.response.use(function (response) {
   return response;
 }, function (error) {
   // 超出 2xx 范围的状态码都会触发该函数。
-  console.log("网址",window.location.href)
+  console.log("网址", window.location.href)
   // 对响应错误做点什么
   // window.location.href = '/login'; 
   return Promise.reject(error);

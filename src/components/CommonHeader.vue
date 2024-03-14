@@ -15,7 +15,7 @@
     <div class="r-content">
       <el-dropdown>
         <span class="el-dropdown-link">
-          <img class="userIcon" src="../assets/logo.png" alt="用户">
+          <img class="userIcon" :src="avatarSrc" alt="用户">
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item @click.native="dialogAvatarVisible = true">
@@ -40,17 +40,8 @@
         - `img v-if="imageUrl" :src="imageUrl" class="avatar"`：通过`v-if`判断是否有`imageUrl`，如果有则显示上传的头像图片。
         - `i v-else class="el-icon-plus avatar-uploader-icon"`：如果没有`imageUrl`，显示一个加号图标。 -->
 
-      <el-dialog title="修改头像" :visible.sync="dialogAvatarVisible">
-        <el-upload class="avatar-uploader" action="http://localhost:80/sports/img/uploadAvatar" :show-file-list="false"
-          :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" :headers="{ 'Jwt': this.token }"
-          @mouseenter="showTooltip = true" @mouseleave="showTooltip = false">
-          <div class="avatar-upload-area">
-            <img v-if="imageUrl" :src="imageUrl" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-            <div class="tooltip" v-show="showTooltip">点击修改头像</div>
-          </div>
-
-        </el-upload>
+      <el-dialog title="修改头像" :visible.sync="dialogAvatarVisible" @close="handleDialogClose">
+        <avatarShowVue :initialSrc="avatarSrc" />
       </el-dialog>
     </div>
   </div>
@@ -58,16 +49,20 @@
 
 <script>
 
+import avatarShowVue from './avatarShow.vue';
 import { mapState } from 'vuex';
 import { logout } from '@/api';
-export default {
 
+export default {
+  components: {
+    avatarShowVue
+    },
   data() {
     return {
       dialogAvatarVisible: false,
       imageUrl: '',
-      token: localStorage.getItem('jwtToken'),
-      showTooltip: false,
+      initialImageSrc: '',
+      avatarSrc:this.$store.state.userInfo.avatarSrc,
     }
 
   },
@@ -84,23 +79,10 @@ export default {
     }
   },
   methods: {
-    handleAvatarSuccess(res, file) {
-      this.imageUrl = URL.createObjectURL(file.raw);
-      console.log(res)
-
-
-    },
-    beforeAvatarUpload(file) {
-      const isJPG = file.type === 'image/jpeg';
-      const isLt2M = file.size / 1024 / 1024 < 2;
-
-      if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 格式!');
-      }
-      if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!');
-      }
-      return isJPG && isLt2M;
+    handleDialogClose(){
+      console.log("userInfo.avatarSrc", this.$store.state.userInfo)
+      this.avatarSrc=this.$store.state.userInfo.avatarSrc;
+      console.log("this.avatarSrc", this.avatarSrc)
     },
 
 
@@ -146,7 +128,7 @@ export default {
           console.log("退出登录", data)
 
 
-          this.$store.state.userInfo.userId = 0
+          this.$store.commit('removeUser');
           window.location.reload();
 
         })
@@ -170,7 +152,7 @@ export default {
   },
   mounted() {
     console.log(this.tags, 'tags')
-    this.imageUrl = "https://image-upload-and-management.oss-cn-beijing.aliyuncs.com/avatar/00d11ae2-133e-4025-aada-41274452aca8-wallhaven-3zvypv.jpg";
+  
   }
 
 }

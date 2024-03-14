@@ -1,5 +1,15 @@
 <template>
     <div id="LogionBody">
+        <div class="demo-image__placeholder">
+            <div class="block">
+                <div class="image-container" @click="goShowye">
+                    <el-image :src="src" class="custom-image"></el-image>
+                    <div class="text-overlay">
+                        中小学生田径运动会报名系统
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="container panel-active">
             <!-- 注册 -->
             <div class="formBox register">
@@ -54,7 +64,8 @@ export default {
                 username: '',
                 password: '',
                 email: ''
-            }
+            },
+            src: 'shouyesuolv.jpg'
         };
     },
     mounted() {
@@ -100,10 +111,12 @@ export default {
                         if (data.data.code === 1) {
                             // 存储JWT令牌
                             localStorage.setItem('jwtToken', data.data.data.token);
-                            localStorage.setItem('sportsUser',  JSON.stringify(data.data.data));
+                            localStorage.setItem('sportsUser', JSON.stringify(data.data.data));
+                            
+                            this.$store.commit('loginUser',data.data.data);
                             
                             this.$router.push('/main')
-                            
+
                             this.$message({
                                 showClose: true,
                                 message: '恭喜你，登录成功成功',
@@ -124,7 +137,7 @@ export default {
                         type: 'error'
                     });
 
-                    
+
                 }
             }
         },
@@ -182,6 +195,10 @@ export default {
             } else {
                 return false;
             }
+        },
+
+        goShowye(){
+            this.$router.push('/')
         }
     }
 }
@@ -192,6 +209,29 @@ export default {
 * {
     margin: 0;
     padding: 0;
+}
+
+.demo-image__placeholder {
+    padding-top: 2%;
+    padding-left: 2%;
+}
+
+.custom-image {
+    width: 180px;
+
+}
+
+.image-container {
+    position: relative;
+}
+
+.text-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    color: white;
 }
 
 #LogionBody {
@@ -362,5 +402,3 @@ export default {
     transform: translateX(20%);
 }
 </style>
-
-

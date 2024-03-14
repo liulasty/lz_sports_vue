@@ -28,9 +28,13 @@ export default {
         ToLogin() {
             checkLogin().then((data)=> {
                 console.log("检查登录",data)
-                if(data.data.status == 200){
+                if(data.data.code == 1){
                     if(data.data.message == '令牌校验失败'){
+                        
                         this.$router.push('/login')
+                    }else{
+                        
+                        this.$router.push('/main')
                     }
                     
                 }

@@ -2,7 +2,7 @@ export default{
     state:{
         username:"",
         userId:0,
-        img:"",
+        avatarSrc:"",
         type:"",
         token:"",
     },
@@ -17,7 +17,7 @@ export default{
             console.log("loginUser",data)
             state.username=data.userName;
             state.userId=data.id;
-            state.img=data.img;
+            state.avatarSrc=data.avatarSrc;
             state.type=data.type
         },
         removeToken(state){
@@ -26,6 +26,9 @@ export default{
         setToken(state,token){
             console.log("设置token",token)
             state.token=token
-        }
+        },
+        updatedAvatarSrc(state,data) {
+            state.avatarSrc=data
+        },
     }
 }

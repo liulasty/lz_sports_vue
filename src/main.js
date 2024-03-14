@@ -9,8 +9,9 @@ import './api/mock';
 
 
 
-
+//用来关闭 Vue 在启动时的生产提示
 Vue.config.productionTip = false
+//全局注册 ElementUI 组件库
 Vue.use(ElementUI);
 
 // to: 即将要进入的目标 用一种标准化的方式

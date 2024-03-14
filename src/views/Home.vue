@@ -3,7 +3,7 @@
         <el-col :span="8" style="padding-right: 5px;">
             <el-card class="box-card" :body-style="{ height: '220px' }">
                 <div class="userImg">
-                    <img src="../assets/logo.png" alt="">
+                    <img :src="avatarSrc" alt="">
                     <div class="user-info">
                         <p class="username">{{ userInfo.userName }}</p>
                         <p class="access">{{ userInfo.type }}</p>
@@ -60,6 +60,7 @@
 <script>
 
 import * as echarts from 'echarts';
+import { mapState } from 'vuex';
 import { getData } from '@/api';
 
 
@@ -118,7 +119,6 @@ export default {
             },
             userInfo: {
                 userName: '',
-                img: '',
                 type: '',
             }
         }
@@ -127,6 +127,7 @@ export default {
 
         const sportsUser = localStorage.getItem('sportsUser')
         const parsedUser = JSON.parse(sportsUser);
+        console.log("parsedUser", parsedUser)
         this.userInfo = parsedUser
         console.log("userInfo", this.userInfo)
 
@@ -393,7 +394,16 @@ export default {
             return formattedDate
         }
 
+    },
+    // 在组件B中计算属性或mapState来访问状态  
+
+    computed: {
+        ...mapState({
+            avatarSrc: state => state.userInfo.avatarSrc
+        })
+
     }
+
 }
 </script>
 
